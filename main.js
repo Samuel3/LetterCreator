@@ -6,6 +6,42 @@ const BrowserWindow = electron.BrowserWindow
 
 const path = require('path')
 const url = require('url')
+app.commandLine.appendSwitch('remote-debugging-port', '9222')
+
+
+const fs = require('fs')
+const os = require('os')
+const ipc = electron.ipcMain
+const shell = electron.shell
+
+var store = require('data-store')('my-app');
+
+store.set("address", ["adkfj", {"fskl":"dfkjkjdf"}])
+//store
+   // .set('a', 'b')
+    //.set({c: 'd'})
+  //  .set('e.f', 'g')
+
+console.log(store.get('address'));
+//=> 'g'
+
+ipc.on('print-to-pdf', function (event) {
+    const pdfPath = path.join(os.tmpdir(), 'print.pdf')
+    const win = BrowserWindow.fromWebContents(event.sender)
+    // Use default printing options
+    console.log("Print-to-pdf")
+    win.webContents.printToPDF({pageSize: "A4"}, function (error, data) {
+        if (error) throw error
+        fs.writeFile(pdfPath, data, function (error) {
+            if (error) {
+                throw error
+            }
+            shell.openExternal('file://' + pdfPath)
+            event.sender.send('wrote-pdf', pdfPath)
+        })
+    })
+})
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

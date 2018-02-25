@@ -1,0 +1,30 @@
+body {
+    font-size: 18px;
+}
+#content {
+    border: 1px solid;
+}
+#date {
+    position: absolute;
+    right: 20px;
+    padding-top: 2em;
+}
+#subject {
+    font-weight: bold;
+    padding-top: 5em;
+}
+#address {
+    padding-top: 3em;
+}
+#print-pdf {
+    margin-top: 2em;
+}
+#text {
+    padding-top: 2em;
+}
+#greeting {
+    padding-top: 2em
+}
+#datepicker {
+    border: none;
+}

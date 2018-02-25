@@ -2,18 +2,35 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <link rel="stylesheet" href="css/print.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
+    <link rel="stylesheet" href="css/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="css/jquery-ui.structure.min.css"/>
+    <script>window.$ = window.jQuery = require('./js/jquery-3.3.1.min');</script>
+    <script src="js/jquery-ui.js"></script>
+    <script src="js/Letter.js"></script>
+    <script>
+      $(document).ready(function(){
+        const ipc = require('electron').ipcRenderer
+
+        const printPDFBtn = document.getElementById('print-pdf')
+
+        printPDFBtn.addEventListener('click', function (event) {
+            ipc.send('print-to-pdf')
+        })
+
+        ipc.on('wrote-pdf', function (event, path) {
+            const message = `Wrote PDF to: ${path}`
+            document.getElementById('pdf-path').innerHTML = message
+        })
+      })
+    </script>
+    <title>Letter Creator</title>
   </head>
   <body>
-    <h1>Hello World!</h1>
-    <!-- All of the Node.js APIs are available in this renderer process. -->
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
-
-    <script>
-      // You can also require other files to run in this process
-      require('./renderer.js')
-    </script>
+  <h1 class="heading">Welcome to Letter Creator</h1>
+  <div id="content"></div>
+  <button class="demo-button" id="print-pdf">Print</button>
+  <button id="history">History</button>
   </body>
 </html>
