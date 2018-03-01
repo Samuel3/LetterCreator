@@ -17,10 +17,6 @@ const shell = electron.shell
 var store = require('data-store')('my-app');
 
 store.set("address", ["adkfj", {"fskl":"dfkjkjdf"}])
-//store
-   // .set('a', 'b')
-    //.set({c: 'd'})
-  //  .set('e.f', 'g')
 
 console.log(store.get('address'));
 //=> 'g'

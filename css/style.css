@@ -1,6 +1,18 @@
 body {
     font-size: 18px;
 }
+fieldset {
+    border: none;
+    height: 1.2em;
+    padding-bottom: 0px;
+}
+select {
+    -webkit-appearance: none;
+    border: none;
+    background-color: inherit;
+    padding-bottom: 0.5em;
+    text-decoration: underline;
+}
 #content {
     border: 1px solid;
 }
@@ -27,4 +39,10 @@ body {
 }
 #datepicker {
     border: none;
+    font-size: inherit;
+    font-style: normal;
+    font-family: inherit;
+    width: 80px;
 }
+
+
