@@ -5,16 +5,25 @@ fieldset {
     border: none;
     height: 1.2em;
     padding-bottom: 0px;
+    border-left: 0px;
+    padding-left: 0px;
+    margin-left: 0px;
+    margin-bottom: 1em;
 }
 select {
     -webkit-appearance: none;
     border: none;
     background-color: inherit;
-    padding-bottom: 0.5em;
-    text-decoration: underline;
+    font-size: 0.5em;
+    border-bottom: 1px solid;
+    border-radius: 0px;
+    width: 8cm;
+    text-align-last: center;
 }
+
 #content {
     border: 1px solid;
+    padding: 3px;
 }
 #date {
     position: absolute;
@@ -26,13 +35,18 @@ select {
     padding-top: 5em;
 }
 #address {
-    padding-top: 3em;
+    padding-top: 1em;
 }
 #print-pdf {
     margin-top: 2em;
 }
 #text {
     padding-top: 2em;
+    border: none;
+    width: 98%;
+    font-size: 18px;
+    -webkit-appearance: none;
+    font-family: inherit;
 }
 #greeting {
     padding-top: 2em

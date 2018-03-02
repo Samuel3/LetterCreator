@@ -20,6 +20,7 @@
     "electron": "~1.8.2"
   },
   "dependencies": {
-    "data-store": "^1.0.0"
+    "data-store": "^1.0.0",
+    "autosize":"^4.0.0"
   }
 }

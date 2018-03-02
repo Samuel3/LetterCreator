@@ -1,17 +1,25 @@
 @media print {
     body {
         background: none;
-        color: black !important;
-        font-size: 70%;
-        margin: 0; padding: 0;
+        font-size: 16px !important;
+        margin-left: 1.3cm !important;
+        padding: 0;
     }
 
     h1 {
         font-size: 22px;
     }
 
+    #date {
+        padding-top: 8em !important;
+    }
+
+    #subject {
+        padding-top: 12em !important;
+    }
+
     .nav, button, .demo-box:before,
-    #pdf-path, header p {
+    #pdf-path, header p,  #checkbox-1, #foldingMarks{
         display: none;
     }
 
@@ -35,6 +43,16 @@
 
     #content {
         border: none !important;
+    }
+
+    #sender {
+        border-bottom: 1px solid;
+        border-radius: 0px;
+        width: 8cm;
+    }
+
+    #address {
+        padding-top: 3.5cm !important;
     }
 
     .ui-datepicker-inline .ui-datepicker .ui-widget .ui-widget-content .ui-helper-clearfix .ui-corner-all {
