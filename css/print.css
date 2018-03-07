@@ -1,8 +1,14 @@
 @media print {
+    @page  {
+        size: A4;
+        margin-left: 0cm;
+        margin-top: 0px !important;
+    }
+
     body {
         background: none;
         font-size: 16px !important;
-        margin-left: 1.3cm !important;
+        margin-left: 0cm !important;
         padding: 0;
     }
 
@@ -10,12 +16,12 @@
         font-size: 22px;
     }
 
-    #date {
-        padding-top: 8em !important;
+    input#date {
+        padding-top: 8em;
     }
 
-    #subject {
-        padding-top: 12em !important;
+    input#subject {
+        padding-top: 12em;
     }
 
     .nav, button, .demo-box:before,
@@ -23,26 +29,17 @@
         display: none;
     }
 
-    .demo-box, h2,
-    pre, code {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
     header {
         padding: 0 0 10px 0;
-    }
-
-    code, .support {
-        font-size: 10px;
     }
 
     .heading {
         display: none;
     }
 
-    #content {
-        border: none !important;
+    div#content {
+        border: none;
+        margin-left: 2.5cm;
     }
 
     #sender {
@@ -51,11 +48,30 @@
         width: 8cm;
     }
 
-    #address {
-        padding-top: 3.5cm !important;
+    div#address {
+        padding-top: 3.5cm;
     }
 
     .ui-datepicker-inline .ui-datepicker .ui-widget .ui-widget-content .ui-helper-clearfix .ui-corner-all {
         display: none;
+    }
+
+    .falzmarken {
+        left: 0px !important;
+    }
+
+    #hr1 {
+        top: 87mm !important;
+        color: red !important;
+    }
+
+    #hr2 {
+        top: 148.5mm !important;
+        color: yellow !important;
+    }
+
+    #hr3 {
+        top: 192mm !important;
+        color: blue !important;
     }
 }

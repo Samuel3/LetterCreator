@@ -33,6 +33,11 @@ select {
 #subject {
     font-weight: bold;
     padding-top: 5em;
+    font-size: inherit;
+    font-family: inherit;
+    border: none;
+    width: 99%;
+
 }
 #address {
     padding-top: 1em;
@@ -44,9 +49,10 @@ select {
     padding-top: 2em;
     border: none;
     width: 98%;
-    font-size: 18px;
+    font-size: inherit;
     -webkit-appearance: none;
     font-family: inherit;
+    resize: none;
 }
 #greeting {
     padding-top: 2em
@@ -58,5 +64,36 @@ select {
     font-family: inherit;
     width: 80px;
 }
+.falzmarken {
+    position: absolute;
+    left: 10px;
+    height: 1px;
+    color: black;
+    background-color: black;
+    border: 1px;
+}
+
+#hr1 {
+    width: 50px;
+    top: 33%;
+    display: none;
+    border-style: dotted;
+}
+
+#hr2 {
+    width: 50px;
+    top: 50%;
+    display: none;
+    border-style: dotted;
+}
+
+#hr3 {
+    width: 50px;
+    top: 66%;
+    display: none;
+    border-style: dotted;
+}
+
+
 
 
