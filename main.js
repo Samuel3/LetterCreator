@@ -16,10 +16,7 @@ const shell = electron.shell
 
 var store = require('data-store')('my-app');
 
-store.set("address", ["adkfj", {"fskl":"dfkjkjdf"}])
-
-console.log(store.get('address'));
-//=> 'g'
+store.set("address", [["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""]]);
 
 ipc.on('print-to-pdf', function (event) {
     const pdfPath = path.join(os.tmpdir(), 'print.pdf')

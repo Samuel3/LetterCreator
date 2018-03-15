@@ -14,11 +14,16 @@ select {
     -webkit-appearance: none;
     border: none;
     background-color: inherit;
-    font-size: 0.5em;
-    border-bottom: 1px solid;
+    font-size: 0.55em;
+    border-bottom: 0.75px solid;
     border-radius: 0px;
     width: 8cm;
     text-align-last: center;
+}
+
+.ui-selected {
+    background-color: #0000a1;
+    color: white;
 }
 
 #content {
@@ -67,33 +72,30 @@ select {
 .falzmarken {
     position: absolute;
     left: 10px;
-    height: 1px;
+    height: 0px;
+    border: 1px;
+    border-bottom: 0px;
     color: black;
     background-color: black;
-    border: 1px;
+
 }
 
 #hr1 {
-    width: 50px;
+    width: 30px;
     top: 33%;
     display: none;
     border-style: dotted;
 }
 
 #hr2 {
-    width: 50px;
+    width: 40px;
     top: 50%;
     display: none;
-    border-style: dotted;
 }
 
 #hr3 {
-    width: 50px;
+    width: 30px;
     top: 66%;
     display: none;
     border-style: dotted;
 }
-
-
-
-

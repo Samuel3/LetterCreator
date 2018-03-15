@@ -25,7 +25,8 @@
     }
 
     .nav, button, .demo-box:before,
-    #pdf-path, header p,  #checkbox-1, #foldingMarks{
+    #pdf-path, header p,  #checkbox-1, #foldingMarks,
+    ui-dialog ui-corner-all ui-widget ui-widget-content ui-front ui-draggable ui-resizable{
         display: none;
     }
 
@@ -60,18 +61,29 @@
         left: 0px !important;
     }
 
-    #hr1 {
-        top: 87mm !important;
-        color: red !important;
+    div#hr1 {
+        top: 77mm;
+        color: red;
+        border-bottom: 0px;
+        border-top: 0.75px;
+        height: 0px;
+        border-style: dotted;
     }
 
-    #hr2 {
-        top: 148.5mm !important;
-        color: yellow !important;
+    div#hr2 {
+        top: 138.5mm;
+        height: 0px;
+        border-bottom: 0px;
+        color: yellow;
+        border-style: solid;
     }
 
-    #hr3 {
-        top: 192mm !important;
-        color: blue !important;
+    div#hr3 {
+        top: 182mm;
+        color: blue;
+        height: 0px;
+        border-bottom: 0px;
+        border-top: 0.75px;
+        border-style: dotted;
     }
 }

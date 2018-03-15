@@ -21,6 +21,6 @@
   },
   "dependencies": {
     "data-store": "^1.0.0",
-    "autosize":"^4.0.0"
+    "autosize": "^4.0.0"
   }
 }
