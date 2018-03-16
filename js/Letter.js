@@ -49,7 +49,21 @@ $(document).ready(function () {
     createAddress.append(dialogContent);
     $("#content").append(createAddress);
     _address.click(function () {
-        createAddress.dialog({width: 800});
+        createAddress.dialog({
+            width: 800,
+            buttons:{
+                "Add Row": function () {
+                    
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+                "OK": function () {
+                    $(this).dialog("close");
+                    setStoredData("address", getAddressDataFromTable())
+                }
+            }
+        });
         dialogContent.show();
     })
     $("#print-pdf").click(function () {
@@ -108,6 +122,9 @@ function getStoredData (key) {
     return store.get(key);
 }
 
+function setStoredData (key, value) {
+    store.set(key, value);
+}
 function getAddress(tableRow) {
     var fullAddress = [];
     var attributes = tableRow.children();
@@ -152,6 +169,7 @@ function createTableData(parent, content) {
         $("#address").html($("#address").children()[0]);
         $("#address").append(addressField.join("<br>")).prepend();
         $("#createAddress").dialog("close");
+        setStoredData("address", getAddressDataFromTable());
     })));
 }
 
@@ -165,5 +183,14 @@ function createDeleteButton(parent) {
 }
 
 function getAddressDataFromTable() {
-
+    var addressData = [];
+    $("#addressTable").find("tr").not(".ui-widget-header").each(function(i,el){
+        var addressEntry = [];
+        $(el).find("td").each(function (j, td) {
+            var addressField = $(td).find("input").val() ? $(td).find("input").val() : "";
+            addressEntry.push(addressField);
+        });
+        addressData.push(addressEntry);
+    })
+    return addressData;
 }
