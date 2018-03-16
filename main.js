@@ -16,7 +16,9 @@ const shell = electron.shell
 
 var store = require('data-store')('my-app');
 
-store.set("address", [["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""]]);
+//store.set("address", [["Herr", "", "Max", "Mustermann", "", "", "Musterstraße 12", "12345", "Musterstadt", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""]]);
+//store.set("greeting", "Grüße \n\nSamuel Mathes");
+//store.set("sender", [""]);
 
 ipc.on('print-to-pdf', function (event) {
     const pdfPath = path.join(os.tmpdir(), 'print.pdf')
@@ -38,12 +40,12 @@ ipc.on('print-to-pdf', function (event) {
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow;
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
-
+    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow.maximize();
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),

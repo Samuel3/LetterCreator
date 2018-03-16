@@ -60,7 +60,12 @@ select {
     resize: none;
 }
 #greeting {
-    padding-top: 2em
+    padding-top: 2em;
+    font-size: inherit;
+    font-family: inherit;
+    border: none;
+    resize: none;
+    width: 98%;
 }
 #datepicker {
     border: none;

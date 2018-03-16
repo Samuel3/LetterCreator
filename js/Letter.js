@@ -1,8 +1,8 @@
 var store;
 
 $(document).ready(function () {
-
     store = require('data-store')('my-app');
+    var table = createAddressTable(getStoredData("address"));
     var autosize = require("autosize")
     var date = new Date();
     var _fieldset = $("<fieldset>");
@@ -14,13 +14,15 @@ $(document).ready(function () {
     _select.append(_option);
     _select.append($("<option>", {"html": "Add sender"}));
     _fieldset.append(_select);
-    var _address = $("<div>", {"id":"address", "html":"Max Mustermann<br>Musterstraße 12<br>12345 Musterstadt"})
+    var firstReceiver = $($(table.children()[1]).children()[0]);
+    var _address = $("<div>", {"id":"address", "html": getAddress(firstReceiver).join("<br>")})
     var _dateField = $("<div>", {"id":"date", "html":"Reutlingen, den <input type='text' id='datepicker'>"})
     var _subject = $("<input>", {"id":"subject", "type": "text"}).val("Betreff: Ihr Schreiben vom")
     var _text = $("<textarea>", {"id": "text"});
     autosize(_text)
     _text.val(("Sehr geehrter Herr \n\nLorem Ipsum"));
-    var _greeting = $("<div>", {"id": "greeting", "html": "Grüße <br><br>Samuel Mathes"});
+    var _greeting = $("<textarea>", {"id": "greeting"}).val(getStoredData("greeting"));
+    autosize(_greeting);
     var hr1 = $("<div>", {"id": "hr1", "class": "falzmarken"});
     var hr2 = $("<div>", {"id": "hr2", "class": "falzmarken"});
     var hr3 = $("<div>", {"id": "hr3", "class": "falzmarken"});
@@ -43,7 +45,7 @@ $(document).ready(function () {
         $("#hr3").toggle();
     })
     var createAddress = $("<div>", {"id": "createAddress", "title": "Adresse erstellen"});
-    var dialogContent = $("<p>", {"html": createAddressTable(getStoredData("address")), "style": "display:none"});
+    var dialogContent = $("<p>", {"html": table, "style": "display:none"});
     createAddress.append(dialogContent);
     $("#content").append(createAddress);
     _address.click(function () {
@@ -51,7 +53,9 @@ $(document).ready(function () {
         dialogContent.show();
     })
     $("#print-pdf").click(function () {
-        createAddress.dialog("close");
+        try {
+            createAddress.dialog("close");
+        } catch (e){}
     })
 });
 
@@ -75,16 +79,9 @@ function createAddressTable(addressData) {
     for (addressEntry of addressData) {
         var tr = $("<tr>");
         for (addressEntryField of addressEntry) {
-            tr.append($("<td>").html($("<input>").css("width", "90%").val(addressEntryField).click(function (e) {
-                _table.find(".ui-selected").removeClass("ui-selected");
-                $(e.target).parent().parent().addClass("ui-selected")
-            }).dblclick(function (e) {
-                var addressField = getAddress($(e.target).parent().parent());
-                $("#address").html($("#address").children()[0]);
-                $("#address").append(addressField.join("<br>")).prepend();
-                $("#createAddress").dialog("close");
-            })));
+            createTableData(tr, addressEntryField);
         }
+        createDeleteButton(tr);
         _body.append(tr);
     }
     _table.append(_header);
@@ -96,6 +93,14 @@ function createAddressTable(addressData) {
             c.helper = ui.helper;
         }
     });
+    _table.append($("<button>", {"id": "addRow"}).html("Add Row").click(function (e) {
+        let tr = $("<tr>");
+        for (i = 0; i <10; i++) {
+            createTableData(tr, "");
+        }
+        createDeleteButton(tr);
+        _table.append(tr);
+    }));
     return _table;
 }
 
@@ -108,7 +113,7 @@ function getAddress(tableRow) {
     var attributes = tableRow.children();
     if (!isCellEmpty(attributes[0]) || !isCellEmpty(attributes[1]) || !isCellEmpty(attributes[2]) || !isCellEmpty(attributes[3])) {
         var _name = getValueOfTableCell(attributes[0]) + " " + getValueOfTableCell(attributes[1]) + " " + getValueOfTableCell(attributes[2]) + " " + getValueOfTableCell(attributes[3]);
-        _name = _name.replace(/  /g, " ")
+        _name = _name.replace(/  /g, " ");
         fullAddress.push(_name);
     }
     if (!isCellEmpty(attributes[4])) {
@@ -136,4 +141,29 @@ function isCellEmpty(cell) {
 
 function getValueOfTableCell(cell) {
     return $($(cell).children()[0]).val()
+}
+
+function createTableData(parent, content) {
+    parent.append($("<td>").html($("<input>").css("width", "90%").val(content).click(function (e) {
+        $("#addressTable").find(".ui-selected").removeClass("ui-selected");
+        $(e.target).parent().parent().addClass("ui-selected")
+    }).dblclick(function (e) {
+        var addressField = getAddress($(e.target).parent().parent());
+        $("#address").html($("#address").children()[0]);
+        $("#address").append(addressField.join("<br>")).prepend();
+        $("#createAddress").dialog("close");
+    })));
+}
+
+function createDeleteButton(parent) {
+    var _btn = $("<button>", {"html": "Delete row", "class": "ui-icon ui-icon-trash"}).click(function (e) {
+        $($(e.target).parent()).parent().remove()
+    });
+    var _td = $("<td>");
+    _td.append(_btn);
+    parent.append(_td);
+}
+
+function getAddressDataFromTable() {
+
 }

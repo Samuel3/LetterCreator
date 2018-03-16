@@ -16,12 +16,16 @@
         font-size: 22px;
     }
 
+    div#date {
+        padding-top: 10em;
+    }
+
     input#date {
-        padding-top: 8em;
+        padding-top: 10em;
     }
 
     input#subject {
-        padding-top: 12em;
+        padding-top: 16em;
     }
 
     .nav, button, .demo-box:before,
@@ -50,7 +54,7 @@
     }
 
     div#address {
-        padding-top: 3.5cm;
+        padding-top: 2cm;
     }
 
     .ui-datepicker-inline .ui-datepicker .ui-widget .ui-widget-content .ui-helper-clearfix .ui-corner-all {
@@ -63,9 +67,8 @@
 
     div#hr1 {
         top: 77mm;
-        color: red;
         border-bottom: 0px;
-        border-top: 0.75px;
+        border-top: 0.5px;
         height: 0px;
         border-style: dotted;
     }
@@ -74,16 +77,15 @@
         top: 138.5mm;
         height: 0px;
         border-bottom: 0px;
-        color: yellow;
+        border-top: 0.5px;
         border-style: solid;
     }
 
     div#hr3 {
         top: 182mm;
-        color: blue;
         height: 0px;
         border-bottom: 0px;
-        border-top: 0.75px;
+        border-top: 0.5px;
         border-style: dotted;
     }
 }
