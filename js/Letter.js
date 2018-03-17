@@ -9,7 +9,11 @@ $(document).ready(function () {
     _fieldset.click(function (e) {
         e.stopPropagation();
     })
-    var _select = $("<select>", {"name": "sender", "id": "sender"});
+    var _select = $("<select>", {"name": "sender", "id": "sender"}).change(function (e) {
+        if ($("#sender option:selected").text() === "Add sender") {
+            $("#formSender").dialog("open");
+        }
+    });
     var _option = $("<option>").html("Samuel Mathes &dash; Brucknerstraße 28 &dash; 72766 Reutlingen");
     _select.append(_option);
     _select.append($("<option>", {"html": "Add sender"}));
@@ -19,10 +23,12 @@ $(document).ready(function () {
     var _dateField = $("<div>", {"id":"date", "html":"Reutlingen, den <input type='text' id='datepicker'>"})
     var _subject = $("<input>", {"id":"subject", "type": "text"}).val("Betreff: Ihr Schreiben vom")
     var _text = $("<textarea>", {"id": "text"});
-    autosize(_text)
+    autosize(_text);
     _text.val(("Sehr geehrter Herr \n\nLorem Ipsum"));
+    autosize.update(_text);
     var _greeting = $("<textarea>", {"id": "greeting"}).val(getStoredData("greeting"));
     autosize(_greeting);
+    autosize.update(_greeting);
     var hr1 = $("<div>", {"id": "hr1", "class": "falzmarken"});
     var hr2 = $("<div>", {"id": "hr2", "class": "falzmarken"});
     var hr3 = $("<div>", {"id": "hr3", "class": "falzmarken"});
@@ -50,13 +56,13 @@ $(document).ready(function () {
     $("#content").append(createAddress);
     _address.click(function () {
         createAddress.dialog({
-            width: 800,
-            buttons:{
+            width: "80%",
+            buttons: {
                 "Add Row": function () {
-                    
+
                 },
-                Cancel: function() {
-                    $( this ).dialog( "close" );
+                Cancel: function () {
+                    $(this).dialog("close");
                 },
                 "OK": function () {
                     $(this).dialog("close");
@@ -65,7 +71,24 @@ $(document).ready(function () {
             }
         });
         dialogContent.show();
-    })
+    });
+    var form = $("<form>", {"id": "formSender", "title":"Create Sender", "html": "Enter Sender name"});
+    var input = $("<input>", {"id": "inputSender"});
+    form.append(input);
+    $("#content").append(form);
+    form.dialog({
+        autoOpen: false,
+        buttons: {
+            "Cancel": function () {
+                $(this).dialog("close");
+            },
+            "OK": function() {
+                var option = $("<option>").html($("#inputSender").val());
+                $("select option:last").before(option);
+                $(this).dialog("close");
+            }
+        }
+    });
     $("#print-pdf").click(function () {
         try {
             createAddress.dialog("close");

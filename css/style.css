@@ -1,6 +1,10 @@
 body {
     font-size: 18px;
 }
+textarea {
+    overflow: hidden;
+}
+
 fieldset {
     border: none;
     height: 1.2em;
@@ -103,4 +107,8 @@ select {
     top: 66%;
     display: none;
     border-style: dotted;
+}
+
+#createSender {
+    border: none;
 }
