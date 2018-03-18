@@ -14,8 +14,10 @@ $(document).ready(function () {
             $("#formSender").dialog("open");
         }
     });
-    var _option = $("<option>").html("Samuel Mathes &dash; Brucknerstraße 28 &dash; 72766 Reutlingen");
-    _select.append(_option);
+    for (data of getStoredData("sender")){
+        var _option = $("<option>").html(data);
+        _select.append(_option);
+    };
     _select.append($("<option>", {"html": "Add sender"}));
     _fieldset.append(_select);
     var firstReceiver = $($(table.children()[1]).children()[0]);
@@ -85,6 +87,8 @@ $(document).ready(function () {
             "OK": function() {
                 var option = $("<option>").html($("#inputSender").val());
                 $("select option:last").before(option);
+                setStoredData("sender", getSenderDataFromDropdown());
+                $("#sender").val($("#inputSender").val());
                 $(this).dialog("close");
             }
         }
@@ -209,11 +213,21 @@ function getAddressDataFromTable() {
     var addressData = [];
     $("#addressTable").find("tr").not(".ui-widget-header").each(function(i,el){
         var addressEntry = [];
-        $(el).find("td").each(function (j, td) {
+        $(el).find("td").not(":last").each(function (j, td) {
             var addressField = $(td).find("input").val() ? $(td).find("input").val() : "";
             addressEntry.push(addressField);
         });
         addressData.push(addressEntry);
     })
     return addressData;
+}
+
+function getSenderDataFromDropdown() {
+    var senderData = [];
+    $("#sender option").each(function (i, el) {
+        if ($(el).val() !== "Add sender") {
+            senderData.push($(el).val());
+        }
+    });
+    return senderData;
 }

@@ -1,0 +1,26 @@
+{
+  "name": "LetterCreator",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "A simple to create business letters",
+  "author": "Samuel Mathes <samuel.mathes@gmail.com>",
+  "main": "./app/index.js",
+  "scripts": {
+    "postinstall": "install-app-deps",
+    "start": "npm install && electron ./app",
+    "pack": "build --dir",
+    "dist": "build"
+  },
+  "build": {
+    "appId": "yourappid",
+    "win": {
+      "target": "squirrel",
+      "icon": "build/icon.ico"
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "latest"
+  }
+}
