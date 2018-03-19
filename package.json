@@ -8,7 +8,7 @@
   "scripts": {
     "postinstall": "install-app-deps",
     "start": "npm install && electron ./app",
-    "pack": "build --dir",
+    "pack": "build --dir --win --x64",
     "dist": "build"
   },
   "build": {

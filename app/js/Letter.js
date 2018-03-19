@@ -13,7 +13,14 @@ $(document).ready(function () {
         if ($("#sender option:selected").text() === "Add sender") {
             $("#formSender").dialog("open");
         }
-    });
+    }).click(function (e) {
+        if ($("#sender > option").length === 1) {
+            $("#formSender").dialog("open");
+        }
+    }).contextmenu(function (e) {
+        $("#inputSender").val($("#sender").val());
+        $("#formSender").dialog("open");
+    })
     for (data of getStoredData("sender")){
         var _option = $("<option>").html(data);
         _select.append(_option);
@@ -22,15 +29,11 @@ $(document).ready(function () {
     _fieldset.append(_select);
     var firstReceiver = $($(table.children()[1]).children()[0]);
     var _address = $("<div>", {"id":"address", "html": getAddress(firstReceiver).join("<br>")})
-    var _dateField = $("<div>", {"id":"date", "html":"Reutlingen, den <input type='text' id='datepicker'>"})
+    var _dateField = $("<div>", {"id":"date", "contenteditable":true,"html":"Reutlingen, den <input type='text' id='datepicker'>"})
     var _subject = $("<input>", {"id":"subject", "type": "text"}).val("Betreff: Ihr Schreiben vom")
-    var _text = $("<textarea>", {"id": "text"});
-    autosize(_text);
-    _text.val(("Sehr geehrter Herr \n\nLorem Ipsum"));
-    autosize.update(_text);
-    var _greeting = $("<textarea>", {"id": "greeting"}).val(getStoredData("greeting"));
-    autosize(_greeting);
-    autosize.update(_greeting);
+    var _text = $("<div>", {"id": "text", "contenteditable": true});
+    _text.html(("Sehr geehrter Herr <br><br>Lorem Ipsum"));
+    var _greeting = $("<div>", {"id": "greeting", "contenteditable": true}).html(getStoredData("greeting"));
     var hr1 = $("<div>", {"id": "hr1", "class": "falzmarken"});
     var hr2 = $("<div>", {"id": "hr2", "class": "falzmarken"});
     var hr3 = $("<div>", {"id": "hr3", "class": "falzmarken"});
@@ -81,16 +84,29 @@ $(document).ready(function () {
     form.dialog({
         autoOpen: false,
         buttons: {
+            "Delete": function () {
+                var _delVal = $("#inputSender").val();
+                $("#sender > option").filter(function(i, el){return $(el).val() === _delVal}).remove();
+                setStoredData("sender", getSenderDataFromDropdown());
+                $(this).dialog("close");
+                $("#inputSender").val("");
+            },
             "Cancel": function () {
                 $(this).dialog("close");
             },
-            "OK": function() {
+            "OK": function () {
                 var option = $("<option>").html($("#inputSender").val());
                 $("select option:last").before(option);
                 setStoredData("sender", getSenderDataFromDropdown());
                 $("#sender").val($("#inputSender").val());
+                $("#inputSender").val("");
                 $(this).dialog("close");
             }
+        }
+    }).keypress(function (e) {
+        if (e.keyCode === $.ui.keyCode.ENTER) {
+            $(this).parent().find("button:eq(3)").trigger("click");
+            e.preventDefault();
         }
     });
     $("#print-pdf").click(function () {
@@ -175,6 +191,9 @@ function getAddress(tableRow) {
     }
     if (!isCellEmpty(attributes[9])) {
         fullAddress.push(getValueOfTableCell(attributes[9]));
+    }
+    if (fullAddress.length === 0) {
+        return ["", "", "", ""];
     }
     return fullAddress;
 }

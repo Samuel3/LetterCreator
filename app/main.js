@@ -17,8 +17,8 @@ const shell = electron.shell
 var store = require('data-store')('my-app');
 
 //store.set("address", [["Herr", "", "Max", "Mustermann", "", "", "Musterstraße 12", "12345", "Musterstadt", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""]]);
-//store.set("greeting", "Grüße \n\nSamuel Mathes");
-//store.set("sender", [""]);
+//store.set("greeting", "Grüße <br><br>Samuel Mathes");
+//store.set("sender", ["Samuel Mathes &mdash; Brucknerstraße 28 &mdash; 72766 Reutlingen"]);
 
 ipc.on('print-to-pdf', function (event) {
     const pdfPath = path.join(os.tmpdir(), 'print.pdf')
