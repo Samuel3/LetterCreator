@@ -21,6 +21,9 @@ $(document).ready(function () {
         $("#inputSender").val($("#sender").val());
         $("#formSender").dialog("open");
     })
+	if (typeof getStoredData("sender") === "undefined") {
+		setStoredData("sender", []);
+	}
     for (data of getStoredData("sender")){
         var _option = $("<option>").html(data);
         _select.append(_option);
@@ -33,6 +36,9 @@ $(document).ready(function () {
     var _subject = $("<input>", {"id":"subject", "type": "text"}).val("Betreff: Ihr Schreiben vom")
     var _text = $("<div>", {"id": "text", "contenteditable": true});
     _text.html(("Sehr geehrter Herr <br><br>Lorem Ipsum"));
+	if (typeof getStoredData("greeting") === "undefined"){
+		setStoredData("greeting", "Grüße <br><br>Samuel Mathes")
+	}
     var _greeting = $("<div>", {"id": "greeting", "contenteditable": true}).html(getStoredData("greeting"));
     var hr1 = $("<div>", {"id": "hr1", "class": "falzmarken"});
     var hr2 = $("<div>", {"id": "hr2", "class": "falzmarken"});
