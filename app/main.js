@@ -7,7 +7,8 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 app.commandLine.appendSwitch('remote-debugging-port', '9222')
-
+const osLocale = require('os-locale');
+console.log(osLocale.sync())
 
 const fs = require('fs')
 const os = require('os')
@@ -19,9 +20,8 @@ var store = require('data-store')('my-app');
 //store.set("address", [["Herr", "", "Max", "Mustermann", "", "", "Musterstraße 12", "12345", "Musterstadt", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""]]);
 //store.set("greeting", "Grüße <br><br>Samuel Mathes");
 //store.set("sender", ["Samuel Mathes &mdash; Brucknerstraße 28 &mdash; 72766 Reutlingen"]);
-
 ipc.on('print-to-pdf', function (event) {
-    const pdfPath = path.join(os.tmpdir(), 'print.pdf')
+    const pdfPath = path.join(os.tmpdir(), 'print.pdf');
     const win = BrowserWindow.fromWebContents(event.sender)
     // Use default printing options
     console.log("Print-to-pdf")
@@ -35,8 +35,16 @@ ipc.on('print-to-pdf', function (event) {
             event.sender.send('wrote-pdf', pdfPath)
         })
     })
-})
+});
 
+ipc.on('print', function (event) {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    // Use default printing options
+    console.log("Print")
+    win.webContents.print({pageSize: "A4"}, function (error, data) {
+        if (error) throw error
+    })
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -68,24 +76,24 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', createWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+    // On OS X it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q
+    if (process.platform !== 'darwin') {
+        app.quit()
+    }
+});
 
 app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
-  }
-})
+    // On OS X it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (mainWindow === null) {
+        createWindow()
+    }
+});
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

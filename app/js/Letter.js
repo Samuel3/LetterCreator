@@ -8,7 +8,7 @@ $(document).ready(function () {
     var _fieldset = $("<fieldset>");
     _fieldset.click(function (e) {
         e.stopPropagation();
-    })
+    });
     var _select = $("<select>", {"name": "sender", "id": "sender"}).change(function (e) {
         if ($("#sender option:selected").text() === "Add sender") {
             $("#formSender").dialog("open");
@@ -77,6 +77,7 @@ $(document).ready(function () {
                 },
                 "OK": function () {
                     $(this).dialog("close");
+                    $("#addressTable").find(".ui-selected > td:eq(0) > input").trigger("dblclick");
                     setStoredData("address", getAddressDataFromTable())
                 }
             }
@@ -173,6 +174,7 @@ function getStoredData (key) {
 
 function setStoredData (key, value) {
     store.set(key, value);
+    store.save();
 }
 function getAddress(tableRow) {
     var fullAddress = [];
@@ -222,6 +224,11 @@ function createTableData(parent, content) {
         $("#address").append(addressField.join("<br>")).prepend();
         $("#createAddress").dialog("close");
         setStoredData("address", getAddressDataFromTable());
+    }).keypress(function (e) {
+        if (e.keyCode === $.ui.keyCode.ENTER) {
+            $(this).trigger("dblclick");
+            e.preventDefault();
+        }
     })));
 }
 
