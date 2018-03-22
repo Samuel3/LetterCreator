@@ -31,8 +31,8 @@ $(document).ready(function () {
     _select.append($("<option>", {"html": "Add sender"}));
     _fieldset.append(_select);
     var firstReceiver = $($(table.children()[1]).children()[0]);
-    var _address = $("<div>", {"id":"address", "html": getAddress(firstReceiver).join("<br>")})
-    var _dateField = $("<div>", {"id":"date", "contenteditable":true,"html":"Reutlingen, den <input type='text' id='datepicker'>"})
+    var _address = $("<div>", {"id":"address", "html": "<div id='receiver'>" + getAddress(firstReceiver).join("<br>") + "</div>"})
+    var _dateField = $("<div>", {"id":"date", "contenteditable":true,"html":"<div id='place'>Reutlingen, den </div><input type='text' id='datepicker'>"})
     var _subject = $("<input>", {"id":"subject", "type": "text"}).val("Betreff: Ihr Schreiben vom")
     var _text = $("<div>", {"id": "text", "contenteditable": true});
     _text.html(("Sehr geehrter Herr <br><br>Lorem Ipsum"));
@@ -117,9 +117,10 @@ $(document).ready(function () {
         }
     });
     $("#print-pdf").click(function () {
-        try {
-            createAddress.dialog("close");
-        } catch (e){}
+        beforePrint();
+    });
+    $("#print").click(function () {
+        beforePrint();
     })
 });
 
@@ -176,6 +177,7 @@ function setStoredData (key, value) {
     store.set(key, value);
     store.save();
 }
+
 function getAddress(tableRow) {
     var fullAddress = [];
     var attributes = tableRow.children();
@@ -205,7 +207,6 @@ function getAddress(tableRow) {
     }
     return fullAddress;
 }
-
 function isCellEmpty(cell) {
     return getValueOfTableCell(cell) === "";
 }
@@ -220,8 +221,7 @@ function createTableData(parent, content) {
         $(e.target).parent().parent().addClass("ui-selected")
     }).dblclick(function (e) {
         var addressField = getAddress($(e.target).parent().parent());
-        $("#address").html($("#address").children()[0]);
-        $("#address").append(addressField.join("<br>")).prepend();
+        $("#receiver").html(addressField.join("<br>"));
         $("#createAddress").dialog("close");
         setStoredData("address", getAddressDataFromTable());
     }).keypress(function (e) {
@@ -243,14 +243,14 @@ function createDeleteButton(parent) {
 
 function getAddressDataFromTable() {
     var addressData = [];
-    $("#addressTable").find("tr").not(".ui-widget-header").each(function(i,el){
+    $("#addressTable").find("tr").not(".ui-widget-header").each(function (i, el) {
         var addressEntry = [];
         $(el).find("td").not(":last").each(function (j, td) {
             var addressField = $(td).find("input").val() ? $(td).find("input").val() : "";
             addressEntry.push(addressField);
         });
         addressData.push(addressEntry);
-    })
+    });
     return addressData;
 }
 
@@ -262,4 +262,34 @@ function getSenderDataFromDropdown() {
         }
     });
     return senderData;
+}
+
+function getCurrentContent() {
+    return {
+        date: {
+            text: $("#place").html(),
+            date: $("#datepicker").val()
+        },
+        sender: $("#sender").val(),
+        receiver: $("#receiver").html(),
+        subject: $("#subject").val(),
+        content: $("#text").html(),
+        greeting: $("#greeting").html(),
+        foldingMarks: $("#checkbox-1")[0].checked,
+        date: new Date()
+    }
+}
+
+function beforePrint() {
+    var history = getStoredData("history");
+    if (typeof history === "undefined") {
+        history = [getCurrentContent()];
+    } else{
+        history.unshift(getCurrentContent())
+    }
+    setStoredData("history", history);
+    try {
+        createAddress.dialog("close");
+    } catch (e) {
+    }
 }

@@ -112,3 +112,7 @@ select {
 #createSender {
     border: none;
 }
+
+#place {
+    display: inline;
+}
