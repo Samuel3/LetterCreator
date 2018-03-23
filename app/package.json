@@ -1,6 +1,6 @@
 {
   "name": "LetterCreator",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A simple app to create business letters",
   "main": "main.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "tutorial",
     "demo"
   ],
-  "author": "GitHub",
+  "author": "Samuel Mathes",
   "devDependencies": {
     "electron": "~1.8.2"
   },

@@ -14,6 +14,7 @@ const fs = require('fs')
 const os = require('os')
 const ipc = electron.ipcMain
 const shell = electron.shell
+const {ipcMain, dialog} = require('electron')
 
 var store = require('data-store')('my-app');
 
@@ -97,3 +98,24 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+ipcMain.on('save-dialog', (event) => {
+    const options = {
+        title: 'Save a letter',
+        filters: [
+            {name: 'Letter', extensions: ['let']}
+        ]
+    }
+    dialog.showSaveDialog(options, (filename) => {
+        event.sender.send('saved-file', filename)
+    })
+});
+
+ipcMain.on('open-file-dialog', (event) => {
+    dialog.showOpenDialog({
+        properties: ['openFile', 'openDirectory']
+    }, (files) => {
+        if (files) {
+            event.sender.send('selected-directory', files)
+        }
+    })
+});

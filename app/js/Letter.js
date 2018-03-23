@@ -1,4 +1,6 @@
 var store;
+const {ipcRenderer} = require('electron');
+const fs = require('fs');
 
 $(document).ready(function () {
     store = require('data-store')('my-app');
@@ -122,6 +124,13 @@ $(document).ready(function () {
     $("#print").click(function () {
         beforePrint();
     })
+    $("#save").click(function () {
+        ipcRenderer.send('save-dialog');
+    })
+    $("#load").click(function () {
+        ipcRenderer.send('open-file-dialog')
+    })
+    var filepreview = require('filepreview');
 });
 
 function createAddressTable(addressData) {
@@ -266,18 +275,26 @@ function getSenderDataFromDropdown() {
 
 function getCurrentContent() {
     return {
-        date: {
-            text: $("#place").html(),
-            date: $("#datepicker").val()
-        },
+        place: $("#place").html(),
         sender: $("#sender").val(),
         receiver: $("#receiver").html(),
         subject: $("#subject").val(),
         content: $("#text").html(),
         greeting: $("#greeting").html(),
         foldingMarks: $("#checkbox-1")[0].checked,
-        date: new Date()
+        date: $("#datepicker").val()
     }
+}
+
+function setContent(content) {
+    $("#place").html(content.place);
+    $("#datepicker").val(content.date);
+    $("#sender").val(content.sender);
+    $("#receiver").html(content.receive);
+    $("#subject").val(content.subject);
+    $("#text").html(content.content);
+    $("#greeting").html(content.greeting);
+    $("#checkbox-1")[0].checked = content.foldingMarks;
 }
 
 function beforePrint() {
@@ -293,3 +310,16 @@ function beforePrint() {
     } catch (e) {
     }
 }
+
+ipcRenderer.on('saved-file', (event, path) => {
+    if (path) {
+        fs.writeFileSync(path, JSON.stringify(getCurrentContent()));
+    }
+});
+
+ipcRenderer.on('selected-directory', (event, path) => {
+    if (path) {
+        var letter = JSON.parse(fs.readFileSync(path + ""));
+        setContent(letter);
+    }
+});
