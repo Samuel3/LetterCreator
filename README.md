@@ -1,4 +1,4 @@
-![Logo](https://github.com/Samuel3/LetterCreator/tree/master/src/Logo.png)
+![Logo](https://raw.githubusercontent.com/Samuel3/LetterCreator/master/src/Logo.png) <!-- .element height="50%" width="50%" -->
 # Letter Creator
 Tired of formatting letters with word? Tired of searching for right values where to place text?
 
