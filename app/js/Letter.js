@@ -5,7 +5,6 @@ const fs = require('fs');
 $(document).ready(function () {
     store = require('data-store')('my-app');
     var table = createAddressTable(getStoredData("address"));
-    var autosize = require("autosize")
     var date = new Date();
     var _fieldset = $("<fieldset>");
     _fieldset.click(function (e) {
