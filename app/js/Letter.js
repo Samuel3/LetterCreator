@@ -1,8 +1,10 @@
 var store;
 const {ipcRenderer} = require('electron');
 const fs = require('fs');
+var pjson = require('../package.json');
 
 $(document).ready(function () {
+    console.log(pjson.version);
     store = require('data-store')('my-app');
     var table = createAddressTable(getStoredData("address"));
     var autosize = require("autosize")
@@ -290,7 +292,7 @@ function setContent(content) {
     $("#place").html(content.place);
     $("#datepicker").val(content.date);
     $("#sender").val(content.sender);
-    $("#receiver").html(content.receive);
+    $("#receiver").html(content.receiver);
     $("#subject").val(content.subject);
     $("#text").html(content.content);
     $("#greeting").html(content.greeting);

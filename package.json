@@ -1,6 +1,6 @@
 {
   "name": "LetterCreator",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "license": "MIT",
   "description": "A simple app to create business letters",
   "author": "Samuel Mathes <samuel.mathes@gmail.com>",
@@ -9,16 +9,14 @@
     "postinstall": "install-app-deps",
     "start": "npm install && electron ./app",
     "pack": "build --dir",
+    "predist": "node build/prebuild.js",
     "dist": "build"
   },
   "build": {
     "appId": "LetterCreator",
     "win": {
       "target": "portable"
-    },
-    "extraFiles": [
-      "app/**"
-    ]
+    }
   },
   "dependencies": {},
   "devDependencies": {
