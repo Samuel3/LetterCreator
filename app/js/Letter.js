@@ -129,7 +129,15 @@ $(document).ready(function () {
     $("#load").click(function () {
         ipcRenderer.send('open-file-dialog')
     })
-    var filepreview = require('filepreview');
+    $(document).on({
+        'dragover dragenter': function(e) {
+            e.preventDefault();
+        }
+    });
+    document.body.ondrop = (ev) => {
+        setContent(JSON.parse(fs.readFileSync(ev.dataTransfer.files[0].path + "")))
+        ev.preventDefault()
+    }
 });
 
 function createAddressTable(addressData) {
@@ -289,7 +297,11 @@ function setContent(content) {
     $("#place").html(content.place);
     $("#datepicker").val(content.date);
     $("#sender").val(content.sender);
-    $("#receiver").html(content.receive);
+    if ($("#sender").val() !== content.sender) {
+        $("#sender").append($("<option>").html(content.sender));
+        $("#sender").val(content.sender);
+    }
+    $("#receiver").html(content.receiver);
     $("#subject").val(content.subject);
     $("#text").html(content.content);
     $("#greeting").html(content.greeting);
@@ -321,4 +333,9 @@ ipcRenderer.on('selected-directory', (event, path) => {
         var letter = JSON.parse(fs.readFileSync(path + ""));
         setContent(letter);
     }
+});
+
+ipcRenderer.on('file-open', (event, path) => {
+    var letter = JSON.parse(fs.readFileSync(path + ""));
+    setContent(letter);
 });

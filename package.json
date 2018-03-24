@@ -14,12 +14,16 @@
   "build": {
     "appId": "LetterCreator",
     "icon": "build/icon.ico",
-    "win": {
-      "target": "portable"
+    "nsis": {
+      "perMachine": true
     },
-    "extraFiles": [
-      "app/**"
-    ]
+    "win": {
+      "target": "nsis",
+      "fileAssociations": {
+        "ext": "let",
+        "name": "LetterCreator"
+      }
+    }
   },
   "dependencies": {},
   "devDependencies": {

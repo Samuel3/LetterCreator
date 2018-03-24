@@ -1,29 +1,23 @@
 const electron = require('electron')
-// Module to control application life.
 const app = electron.app
-// Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
-
 const path = require('path')
 const url = require('url')
-app.commandLine.appendSwitch('remote-debugging-port', '9222')
 const osLocale = require('os-locale');
-console.log(osLocale.sync())
-
-const fs = require('fs')
 const os = require('os')
+const fs = require('fs')
 const ipc = electron.ipcMain
 const shell = electron.shell
 const {ipcMain, dialog} = require('electron')
+const store = require('data-store')('my-app');
 
-var store = require('data-store')('my-app');
+app.commandLine.appendSwitch('remote-debugging-port', '9222')
 
-//store.set("address", [["Herr", "", "Max", "Mustermann", "", "", "Musterstraße 12", "12345", "Musterstadt", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""]]);
-//store.set("greeting", "Grüße <br><br>Samuel Mathes");
-//store.set("sender", ["Samuel Mathes &mdash; Brucknerstraße 28 &mdash; 72766 Reutlingen"]);
+
+
 ipc.on('print-to-pdf', function (event) {
     const pdfPath = path.join(os.tmpdir(), 'print.pdf');
-    const win = BrowserWindow.fromWebContents(event.sender)
+    var win = BrowserWindow.fromWebContents(event.sender)
     // Use default printing options
     console.log("Print-to-pdf")
     win.webContents.printToPDF({pageSize: "A4"}, function (error, data) {
@@ -41,7 +35,6 @@ ipc.on('print-to-pdf', function (event) {
 ipc.on('print', function (event) {
     const win = BrowserWindow.fromWebContents(event.sender)
     // Use default printing options
-    console.log("Print")
     win.webContents.print({pageSize: "A4"}, function (error, data) {
         if (error) throw error
     })
@@ -52,18 +45,25 @@ ipc.on('print', function (event) {
 let mainWindow;
 
 function createWindow () {
-  // Create the browser window.
     mainWindow = new BrowserWindow({width: 800, height: 600});
     mainWindow.maximize();
-  // and load the index.html of the app.
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+    mainWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'index.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
+    mainWindow.webContents.on('did-finish-load', function() {
+        for (arg of process.argv) {
+            if (fs.existsSync(arg) && arg.endsWith(".let")) {
+                console.log(arg)
+                mainWindow.webContents.send("file-open", arg);
+            }
+        }
+
+    })
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  //  mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -112,7 +112,8 @@ ipcMain.on('save-dialog', (event) => {
 
 ipcMain.on('open-file-dialog', (event) => {
     dialog.showOpenDialog({
-        properties: ['openFile', 'openDirectory']
+        filters: [{name: 'Letters', extensions: ['let']}],
+        properties: ['openFile']
     }, (files) => {
         if (files) {
             event.sender.send('selected-directory', files)
