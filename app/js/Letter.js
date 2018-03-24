@@ -7,7 +7,6 @@ $(document).ready(function () {
     console.log(pjson.version);
     store = require('data-store')('my-app');
     var table = createAddressTable(getStoredData("address"));
-    var autosize = require("autosize")
     var date = new Date();
     var _fieldset = $("<fieldset>");
     _fieldset.click(function (e) {
