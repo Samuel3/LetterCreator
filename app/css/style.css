@@ -116,3 +116,10 @@ select {
 #place {
     display: inline;
 }
+
+#footer {
+    position: absolute;
+    bottom: 0px;
+    text-align: center;
+    width: 99%
+}

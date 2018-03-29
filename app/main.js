@@ -10,10 +10,13 @@ const ipc = electron.ipcMain
 const shell = electron.shell
 const {ipcMain, dialog} = require('electron')
 const store = require('data-store')('my-app');
+const log = require('electron-log');
 
 app.commandLine.appendSwitch('remote-debugging-port', '9222')
-
-
+const autoUpdater = require("electron-updater").autoUpdater
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+log.info('App starting...');
 
 ipc.on('print-to-pdf', function (event) {
     const pdfPath = path.join(os.tmpdir(), 'print.pdf');
@@ -45,6 +48,7 @@ ipc.on('print', function (event) {
 let mainWindow;
 
 function createWindow () {
+    autoUpdater.checkForUpdates()
     mainWindow = new BrowserWindow({width: 800, height: 600});
     mainWindow.maximize();
     mainWindow.loadURL(url.format({
@@ -120,3 +124,20 @@ ipcMain.on('open-file-dialog', (event) => {
         }
     })
 });
+
+autoUpdater.on('checking-for-update', () => {
+    log.info("Checking for updates...")
+})
+autoUpdater.on('update-available', (info) => {
+})
+autoUpdater.on('update-not-available', (info) => {
+    log.info("Update not available")
+})
+autoUpdater.on('error', (err) => {
+})
+autoUpdater.on('download-progress', (progressObj) => {
+    log.info("download progrss")
+})
+autoUpdater.on('update-downloaded', (info) => {
+  autoUpdater.quitAndInstall();
+})

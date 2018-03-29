@@ -1,6 +1,6 @@
 {
   "name": "LetterCreator",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A simple app to create business letters",
   "main": "main.js",
   "scripts": {
@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "data-store": "^1.0.0",
-    "os-locale": "^2.1.0"
+    "os-locale": "^2.1.0",
+    "electron-log": "^2.2.14",
+    "electron-updater": "^2.21.4"
   }
 }

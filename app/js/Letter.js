@@ -3,6 +3,8 @@ const {ipcRenderer} = require('electron');
 const fs = require('fs');
 
 $(document).ready(function () {
+    var package = require("../package.json");
+    $("#footer").text(package.version);
     store = require('data-store')('my-app');
     var table = createAddressTable(getStoredData("address"));
     var date = new Date();

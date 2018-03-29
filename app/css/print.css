@@ -88,4 +88,7 @@
         border-top: 0.5px;
         border-style: dotted;
     }
+    div#footer {
+        display: none;
+    }
 }
