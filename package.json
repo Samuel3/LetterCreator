@@ -1,6 +1,6 @@
 {
   "name": "LetterCreator",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "license": "MIT",
   "description": "A simple app to create business letters",
   "author": "Samuel Mathes <samuel.mathes@gmail.com>",
@@ -9,15 +9,21 @@
     "postinstall": "install-app-deps",
     "start": "npm install && electron ./app",
     "pack": "build --dir",
-    "dist": "build"
+    "dist": "build",
+    "release": "build"
   },
   "build": {
     "appId": "LetterCreator",
     "icon": "build/icon.ico",
+    "publish":{
+      "provider": "github",
+      "repo":"https://github.com/Samuel3/LetterCreator"
+    },
     "nsis": {
       "perMachine": true
     },
     "win": {
+      "publish":["github"],
       "target": "nsis",
       "fileAssociations": {
         "ext": "let",
@@ -25,7 +31,9 @@
       }
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "electron-updater": "^2.21.3"
+  },
   "devDependencies": {
     "electron": "latest",
     "electron-builder": "latest"
