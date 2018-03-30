@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>About</title>
+    <script>window.$ = window.jQuery = require('../js/jquery-3.3.1.min');</script>
+    <script>$(document).ready(function () {
+        var version = require("../package.json").version;
+        $("#content").html("LetterCreator was created by Samuel Mathes<br>Version: " + version +"<br>&copy; 2018 by Samuel Mathes");
+    })</script>
 </head>
 <body>
     <h1>About LetterCreator</h1>
-    <div id="content">
-        LetterCreator was created by Samuel Mathes
-    </div>
+    <img src="../img/Logo_Small.png">
+    <div id="content"></div>
 </body>
 </html>

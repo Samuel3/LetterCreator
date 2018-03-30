@@ -71,8 +71,10 @@ function createWindow () {
     // when you should delete the corresponding element.
       mainWindow = null;
       if (typeof aboutWindow !== "undefined") {
-          aboutWindow.close()
-          aboutWindow = null;
+          try {
+              aboutWindow.close();
+              aboutWindow = null;
+          }catch (e){}
       }
   })
 }
@@ -84,6 +86,7 @@ app.on('ready', createWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
+    mainWindow.webContents.send("closed");
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== 'darwin') {
