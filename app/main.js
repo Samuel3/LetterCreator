@@ -1,16 +1,13 @@
-const electron = require('electron')
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 const osLocale = require('os-locale');
 const os = require('os')
 const fs = require('fs')
-const ipc = electron.ipcMain
-const shell = electron.shell
-const {ipcMain, dialog} = require('electron')
+const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron')
 const store = require('data-store')('my-app');
 const log = require('electron-log');
+require("./js/i18n");
+require("./js/MenuTemplate")
 
 app.commandLine.appendSwitch('remote-debugging-port', '9222')
 const autoUpdater = require("electron-updater").autoUpdater
@@ -18,7 +15,7 @@ autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
 
-ipc.on('print-to-pdf', function (event) {
+ipcMain.on('print-to-pdf', function (event) {
     const pdfPath = path.join(os.tmpdir(), 'print.pdf');
     var win = BrowserWindow.fromWebContents(event.sender)
     // Use default printing options
@@ -35,7 +32,7 @@ ipc.on('print-to-pdf', function (event) {
     })
 });
 
-ipc.on('print', function (event) {
+ipcMain.on('print', function (event) {
     const win = BrowserWindow.fromWebContents(event.sender)
     // Use default printing options
     win.webContents.print({pageSize: "A4"}, function (error, data) {
@@ -43,28 +40,26 @@ ipc.on('print', function (event) {
     })
 });
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
 function createWindow () {
-    autoUpdater.checkForUpdates()
+    autoUpdater.checkForUpdates();
     mainWindow = new BrowserWindow({width: 800, height: 600});
     mainWindow.maximize();
     mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
+        pathname: path.join(__dirname, '/sites/index.html'),
         protocol: 'file:',
         slashes: true
     }));
-    mainWindow.webContents.on('did-finish-load', function() {
+    const menu = Menu.buildFromTemplate(template());
+    Menu.setApplicationMenu(menu);
+    mainWindow.webContents.on('did-finish-load', function () {
         for (arg of process.argv) {
             if (fs.existsSync(arg) && arg.endsWith(".let")) {
-                console.log(arg)
                 mainWindow.webContents.send("file-open", arg);
             }
         }
-
-    })
+    });
 
   // Open the DevTools.
   //  mainWindow.webContents.openDevTools()
@@ -74,7 +69,11 @@ function createWindow () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    mainWindow = null
+      mainWindow = null;
+      if (typeof aboutWindow !== "undefined") {
+          aboutWindow.close()
+          aboutWindow = null;
+      }
   })
 }
 
@@ -127,17 +126,17 @@ ipcMain.on('open-file-dialog', (event) => {
 
 autoUpdater.on('checking-for-update', () => {
     log.info("Checking for updates...")
-})
+});
 autoUpdater.on('update-available', (info) => {
-})
+});
 autoUpdater.on('update-not-available', (info) => {
     log.info("Update not available")
-})
+});
 autoUpdater.on('error', (err) => {
-})
+});
 autoUpdater.on('download-progress', (progressObj) => {
     log.info("download progrss")
-})
+});
 autoUpdater.on('update-downloaded', (info) => {
-  autoUpdater.quitAndInstall();
-})
+    autoUpdater.quitAndInstall();
+});
