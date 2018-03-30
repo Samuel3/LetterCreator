@@ -9,6 +9,7 @@
     "postinstall": "install-app-deps",
     "start": "npm install && electron ./app",
     "pack": "build --dir",
+    "prerelease": "node build/prebuild.js",
     "dist": "build",
     "release": "build"
   },
