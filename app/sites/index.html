@@ -6,30 +6,12 @@
     <link rel="stylesheet" href="../css/style.css"/>
     <link rel="stylesheet" href="../css/jquery-ui.min.css"/>
     <link rel="stylesheet" href="../css/jquery-ui.structure.min.css"/>
-    <script>window.$ = window.jQuery = require('../js/jquery-3.3.1.min');</script>
+    <script>window.$ = window.jQuery = require('jquery');</script>
     <script>require('../js/jquery-ui')</script>
     <script>require('../js/Letter')</script>
-    <script>
-      $(document).ready(function(){
-          const ipc = require('electron').ipcRenderer;
-          const printPDFBtn = document.getElementById('print-pdf');
-          printPDFBtn.addEventListener('click', function (event) {
-              ipc.send('print-to-pdf')
-          });
-          ipc.on('wrote-pdf', function (event, path) {
-              const message = `Wrote PDF to: ${path}`;
-              document.getElementById('pdf-path').innerHTML = message
-          });
-          const printBtn = document.getElementById('print');
-          printBtn.addEventListener('click', function (event) {
-              ipc.send('print')
-          });
-
-      })
-    </script>
     <title>Letter Creator</title>
   </head>
-  <body>
+  <body bgcolor="white">
   <h1 class="heading">Welcome to Letter Creator</h1>
   <div id="content"></div>
   <label for="checkbox-1" id="foldingMarks">Faltmarken</label>

@@ -8,6 +8,30 @@ const path = require('path');
 template = function () {
     const template = [
         {
+            label: "File",
+            submenu: [
+                {
+                    label: "Open",
+                    click: function () {
+
+                    }
+                },
+                {
+                    label: "Save",
+                    click: function () {
+
+                    }
+                },
+                {type: 'separator'},
+                {
+                    label: "Exit",
+                    click: function () {
+
+                    }
+                }
+            ]
+        },
+        {
             label: 'Edit',
             submenu: [
                 {role: 'undo'},
@@ -17,7 +41,18 @@ template = function () {
                 {role: 'copy'},
                 {role: 'paste'},
                 {role: 'delete'},
-                {role: 'selectall'}
+                {role: 'selectall'},
+                {type: 'separator'},
+                {label: "Settings",
+                click: function () {
+                    settingsWindow = new BrowserWindow({width: 800, height: 600, title: "Settings"});
+                    settingsWindow.loadURL(url.format({
+                        pathname: path.join(__dirname, '../sites/settings.html'),
+                        protocol: 'file:',
+                        slashes: true
+                    }));
+                    settingsWindow.setMenuBarVisibility(false);
+                }}
             ]
         },
         {
@@ -45,12 +80,6 @@ template = function () {
             role: 'help',
             submenu: [
                 {
-                    label: 'Learn More',
-                    click () {
-                        require('electron').shell.openExternal('https://electronjs.org')
-                    }
-                },
-                {
                     label: "About",
                     click(){
                         aboutWindow = new BrowserWindow({width: 800, height: 600, title: "About"});
@@ -59,7 +88,7 @@ template = function () {
                             protocol: 'file:',
                             slashes: true
                         }));
-                        aboutWindow.setMenuBarVisibility(false)
+                        aboutWindow.setMenuBarVisibility(false);
                     }
                 }
             ]

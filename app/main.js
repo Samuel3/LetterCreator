@@ -44,7 +44,7 @@ let mainWindow;
 
 function createWindow () {
     autoUpdater.checkForUpdates();
-    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800"});
     mainWindow.maximize();
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '/sites/index.html'),
@@ -74,6 +74,12 @@ function createWindow () {
           try {
               aboutWindow.close();
               aboutWindow = null;
+          }catch (e){}
+      }
+      if (typeof settingsWindow !== "undefined") {
+          try {
+              settingsWindow.close();
+              settingsWindow = null;
           }catch (e){}
       }
   })

@@ -4,7 +4,14 @@ const fs = require('fs');
 
 $(document).ready(function () {
     store = require('data-store')('my-app');
-    debugger
+
+        const printPDFBtn = document.getElementById('print-pdf');
+    $("#print-pdf").click(function () {
+        ipcRenderer.send('print-to-pdf')
+    });
+    $("#print").click(function () {
+        ipcRenderer.send('print')
+    });
     var table = createAddressTable(getStoredData("address"));
     var date = new Date();
     var _fieldset = $("<fieldset>");
@@ -357,4 +364,9 @@ ipcRenderer.on("closed", () => {
             setStoredData("history", history);
         }
     }
+});
+
+ipcRenderer.on('wrote-pdf', function (event, path) {
+    const message = `Wrote PDF to: ${path}`;
+    document.getElementById('pdf-path').innerHTML = message
 });

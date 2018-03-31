@@ -1,10 +1,18 @@
 body {
     font-size: 18px;
 }
+h1 {
+    font-family: TimeBurner;
+    width: 99%;
+    text-align: center;
+}
 textarea {
     overflow: hidden;
 }
-
+@font-face {
+    font-family: "TimeBurner";
+    src: url("../fonts/timeburnernormal.ttf") format("truetype");
+}
 fieldset {
     border: none;
     height: 1.2em;
