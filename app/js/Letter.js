@@ -4,8 +4,6 @@ const fs = require('fs');
 
 $(document).ready(function () {
     store = require('data-store')('my-app');
-
-        const printPDFBtn = document.getElementById('print-pdf');
     $("#print-pdf").click(function () {
         ipcRenderer.send('print-to-pdf')
     });
@@ -125,6 +123,7 @@ $(document).ready(function () {
             e.preventDefault();
         }
     });
+
     $("#print-pdf").click(function () {
         beforePrint();
     });

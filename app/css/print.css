@@ -91,4 +91,7 @@
     div#footer {
         display: none;
     }
+    div#messageBox {
+        display: none;
+    }
 }

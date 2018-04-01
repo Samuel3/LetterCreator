@@ -9,6 +9,8 @@ const log = require('electron-log');
 require("./js/i18n");
 require("./js/MenuTemplate")
 
+console.log(i18n("menu.file"))
+
 app.commandLine.appendSwitch('remote-debugging-port', '9222')
 const autoUpdater = require("electron-updater").autoUpdater
 autoUpdater.logger = log;

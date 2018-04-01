@@ -131,3 +131,15 @@ select {
     text-align: center;
     width: 99%
 }
+#messageBox {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 200px;
+    height: 100%;
+}
+
+#message {
+    position: relative;
+    bottom: 0px;
+}
