@@ -1,25 +1,20 @@
 {
   "name": "LetterCreator",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "A simple app to create business letters",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/Samuel3/LetterCreator",
-  "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
-  ],
   "author": "Samuel Mathes",
   "devDependencies": {
     "electron": "~1.8.2"
   },
   "dependencies": {
     "data-store": "^1.0.0",
+    "electron-log": "^2.2.14",
+    "electron-updater": "^2.21.4",
+    "jquery": "^3.3.1",
     "os-locale": "^2.1.0"
   }
 }

@@ -1,10 +1,18 @@
 body {
     font-size: 18px;
 }
+h1 {
+    font-family: TimeBurner;
+    width: 99%;
+    text-align: center;
+}
 textarea {
     overflow: hidden;
 }
-
+@font-face {
+    font-family: "TimeBurner";
+    src: url("../fonts/timeburnernormal.ttf") format("truetype");
+}
 fieldset {
     border: none;
     height: 1.2em;
@@ -115,4 +123,23 @@ select {
 
 #place {
     display: inline;
+}
+
+#footer {
+    position: absolute;
+    bottom: 0px;
+    text-align: center;
+    width: 99%
+}
+#messageBox {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 200px;
+    height: 100%;
+}
+
+#message {
+    position: relative;
+    bottom: 0px;
 }

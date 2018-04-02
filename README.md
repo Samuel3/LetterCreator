@@ -1,5 +1,6 @@
+![Logo](https://raw.githubusercontent.com/Samuel3/LetterCreator/master/src/Logo_Small.png)
 # Letter Creator
-Tired of formatting letters with word? Tired of searching for right values where to place text? 
+Tired of formatting letters with word? Tired of searching for right values where to place text?
 
 Than you can now use LetterCreator. This is a simple app which let you easily create business letters with the right formatting. The search for formatting options has now come to and end!
 ## Features

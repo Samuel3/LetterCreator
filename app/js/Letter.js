@@ -1,11 +1,15 @@
 var store;
 const {ipcRenderer} = require('electron');
 const fs = require('fs');
-var pjson = require('../package.json');
 
 $(document).ready(function () {
-    console.log(pjson.version);
     store = require('data-store')('my-app');
+    $("#print-pdf").click(function () {
+        ipcRenderer.send('print-to-pdf')
+    });
+    $("#print").click(function () {
+        ipcRenderer.send('print')
+    });
     var table = createAddressTable(getStoredData("address"));
     var date = new Date();
     var _fieldset = $("<fieldset>");
@@ -119,6 +123,7 @@ $(document).ready(function () {
             e.preventDefault();
         }
     });
+
     $("#print-pdf").click(function () {
         beforePrint();
     });
@@ -131,7 +136,15 @@ $(document).ready(function () {
     $("#load").click(function () {
         ipcRenderer.send('open-file-dialog')
     })
-    var filepreview = require('filepreview');
+    $(document).on({
+        'dragover dragenter': function(e) {
+            e.preventDefault();
+        }
+    });
+    document.body.ondrop = (ev) => {
+        setContent(JSON.parse(fs.readFileSync(ev.dataTransfer.files[0].path + "")))
+        ev.preventDefault()
+    }
 });
 
 function createAddressTable(addressData) {
@@ -151,14 +164,19 @@ function createAddressTable(addressData) {
         .append($("<th>").html("Land"));
     var _body = $("<tbody>");
 
-    for (addressEntry of addressData) {
-        var tr = $("<tr>");
-        for (addressEntryField of addressEntry) {
-            createTableData(tr, addressEntryField);
+    if (typeof addressData !== "undefined") {
+        for (addressEntry of addressData) {
+            var tr = $("<tr>");
+            for (addressEntryField of addressEntry) {
+                createTableData(tr, addressEntryField);
+            }
+            createDeleteButton(tr);
+            _body.append(tr);
         }
-        createDeleteButton(tr);
-        _body.append(tr);
+    } else{
+
     }
+
     _table.append(_header);
     _table.append(_body);
     _table.selectable({filter:"tr"}).draggable({
@@ -291,6 +309,10 @@ function setContent(content) {
     $("#place").html(content.place);
     $("#datepicker").val(content.date);
     $("#sender").val(content.sender);
+    if ($("#sender").val() !== content.sender) {
+        $("#sender").append($("<option>").html(content.sender));
+        $("#sender").val(content.sender);
+    }
     $("#receiver").html(content.receiver);
     $("#subject").val(content.subject);
     $("#text").html(content.content);
@@ -323,4 +345,27 @@ ipcRenderer.on('selected-directory', (event, path) => {
         var letter = JSON.parse(fs.readFileSync(path + ""));
         setContent(letter);
     }
+});
+
+ipcRenderer.on('file-open', (event, path) => {
+    var letter = JSON.parse(fs.readFileSync(path + ""));
+    setContent(letter);
+});
+
+ipcRenderer.on("closed", () => {
+    var currentContent = getCurrentContent();
+    var history = getStoredData("history");
+    if (typeof history !== "undefined") {
+        setStoredData("history", [getCurrentContent()]);
+    } else {
+        if (JSON.stringify(currentContent) !== JSON.stringify(history[0])) {
+            history = history.unshift(currentContent);
+            setStoredData("history", history);
+        }
+    }
+});
+
+ipcRenderer.on('wrote-pdf', function (event, path) {
+    const message = `Wrote PDF to: ${path}`;
+    document.getElementById('pdf-path').innerHTML = message
 });

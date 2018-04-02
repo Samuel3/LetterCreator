@@ -1,29 +1,25 @@
-const electron = require('electron')
-// Module to control application life.
-const app = electron.app
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
-
 const path = require('path')
 const url = require('url')
-app.commandLine.appendSwitch('remote-debugging-port', '9222')
 const osLocale = require('os-locale');
-console.log(osLocale.sync())
+const os = require('os')
+const fs = require('fs')
+const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron')
+const store = require('data-store')('my-app');
+const log = require('electron-log');
+require("./js/i18n");
+require("./js/MenuTemplate")
 
-const fs = require('fs');
-const os = require('os');
-const ipc = electron.ipcMain;
-const shell = electron.shell;
-const {ipcMain, dialog} = require('electron');
+console.log(i18n("menu.file"))
 
-var store = require('data-store')('my-app');
+app.commandLine.appendSwitch('remote-debugging-port', '9222')
+const autoUpdater = require("electron-updater").autoUpdater
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+log.info('App starting...');
 
-//store.set("address", [["Herr", "", "Max", "Mustermann", "", "", "Musterstraße 12", "12345", "Musterstadt", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""],["Herr", "", "Gerd", "Jenz", "Jenz Finanz Service UG", "", "Heinrich-Heine-Str. 18", "72555", "Metzingen", ""]]);
-//store.set("greeting", "Grüße <br><br>Samuel Mathes");
-//store.set("sender", ["Samuel Mathes &mdash; Brucknerstraße 28 &mdash; 72766 Reutlingen"]);
-ipc.on('print-to-pdf', function (event) {
+ipcMain.on('print-to-pdf', function (event) {
     const pdfPath = path.join(os.tmpdir(), 'print.pdf');
-    const win = BrowserWindow.fromWebContents(event.sender)
+    var win = BrowserWindow.fromWebContents(event.sender)
     // Use default printing options
     console.log("Print-to-pdf")
     win.webContents.printToPDF({pageSize: "A4"}, function (error, data) {
@@ -38,40 +34,56 @@ ipc.on('print-to-pdf', function (event) {
     })
 });
 
-ipc.on('print', function (event) {
+ipcMain.on('print', function (event) {
     const win = BrowserWindow.fromWebContents(event.sender)
     // Use default printing options
-    console.log("Print")
     win.webContents.print({pageSize: "A4"}, function (error, data) {
         if (error) throw error
     })
 });
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
 function createWindow () {
-  // Create the browser window.
-    mainWindow = new BrowserWindow({width: 800, height: 600, title: "LetterCreator"});
+    autoUpdater.checkForUpdates();
+    mainWindow = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800"});
     mainWindow.maximize();
-    mainWindow.setTitle("LetterCreator");
-  // and load the index.html of the app.
     mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
+        pathname: path.join(__dirname, '/sites/index.html'),
         protocol: 'file:',
         slashes: true
     }));
+    const menu = Menu.buildFromTemplate(template());
+    Menu.setApplicationMenu(menu);
+    mainWindow.webContents.on('did-finish-load', function () {
+        for (arg of process.argv) {
+            if (fs.existsSync(arg) && arg.endsWith(".let")) {
+                mainWindow.webContents.send("file-open", arg);
+            }
+        }
+    });
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  //  mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    mainWindow = null
+      mainWindow = null;
+      if (typeof aboutWindow !== "undefined") {
+          try {
+              aboutWindow.close();
+              aboutWindow = null;
+          }catch (e){}
+      }
+      if (typeof settingsWindow !== "undefined") {
+          try {
+              settingsWindow.close();
+              settingsWindow = null;
+          }catch (e){}
+      }
   })
 }
 
@@ -82,6 +94,7 @@ app.on('ready', createWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
+    mainWindow.webContents.send("closed");
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== 'darwin') {
@@ -113,7 +126,8 @@ ipcMain.on('save-dialog', (event) => {
 
 ipcMain.on('open-file-dialog', (event) => {
     dialog.showOpenDialog({
-        properties: ['openFile', 'openDirectory']
+        filters: [{name: 'Letters', extensions: ['let']}],
+        properties: ['openFile']
     }, (files) => {
         if (files) {
             event.sender.send('selected-directory', files)
@@ -121,229 +135,19 @@ ipcMain.on('open-file-dialog', (event) => {
     })
 });
 
-
-const {Menu} = require('electron')
-
-let template = [{
-    label: 'Edit',
-    submenu: [{
-        label: 'Undo',
-        accelerator: 'CmdOrCtrl+Z',
-        role: 'undo'
-    }, {
-        label: 'Redo',
-        accelerator: 'Shift+CmdOrCtrl+Z',
-        role: 'redo'
-    }, {
-        type: 'separator'
-    }, {
-        label: 'Cut',
-        accelerator: 'CmdOrCtrl+X',
-        role: 'cut'
-    }, {
-        label: 'Copy',
-        accelerator: 'CmdOrCtrl+C',
-        role: 'copy'
-    }, {
-        label: 'Paste',
-        accelerator: 'CmdOrCtrl+V',
-        role: 'paste'
-    }, {
-        label: 'Select All',
-        accelerator: 'CmdOrCtrl+A',
-        role: 'selectall'
-    }]
-}, {
-    label: 'View',
-    submenu: [{
-        label: 'Reload',
-        accelerator: 'CmdOrCtrl+R',
-        click: (item, focusedWindow) => {
-            if (focusedWindow) {
-                // on reload, start fresh and close any old
-                // open secondary windows
-                if (focusedWindow.id === 1) {
-                    BrowserWindow.getAllWindows().forEach(win => {
-                        if (win.id > 1) win.close()
-                    })
-                }
-                focusedWindow.reload()
-            }
-        }
-    }, {
-        label: 'Toggle Full Screen',
-        accelerator: (() => {
-            if (process.platform === 'darwin') {
-                return 'Ctrl+Command+F'
-            } else {
-                return 'F11'
-            }
-        })(),
-        click: (item, focusedWindow) => {
-            if (focusedWindow) {
-                focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
-            }
-        }
-    }, {
-        label: 'Toggle Developer Tools',
-        accelerator: (() => {
-            if (process.platform === 'darwin') {
-                return 'Alt+Command+I'
-            } else {
-                return 'Ctrl+Shift+I'
-            }
-        })(),
-        click: (item, focusedWindow) => {
-            if (focusedWindow) {
-                focusedWindow.toggleDevTools()
-            }
-        }
-    }, {
-        type: 'separator'
-    }, {
-        label: 'App Menu Demo',
-        click: function (item, focusedWindow) {
-            if (focusedWindow) {
-                const options = {
-                    type: 'info',
-                    title: 'Application Menu Demo',
-                    buttons: ['Ok'],
-                    message: 'This demo is for the Menu section, showing how to create a clickable menu item in the application menu.'
-                }
-                dialog.showMessageBox(focusedWindow, options, function () {})
-            }
-        }
-    }]
-}, {
-    label: 'Window',
-    role: 'window',
-    submenu: [{
-        label: 'Minimize',
-        accelerator: 'CmdOrCtrl+M',
-        role: 'minimize'
-    }, {
-        label: 'Close',
-        accelerator: 'CmdOrCtrl+W',
-        role: 'close'
-    }, {
-        type: 'separator'
-    }, {
-        label: 'Reopen Window',
-        accelerator: 'CmdOrCtrl+Shift+T',
-        enabled: false,
-        key: 'reopenMenuItem',
-        click: () => {
-            app.emit('activate')
-        }
-    }]
-}, {
-    label: 'Help',
-    role: 'help',
-    submenu: [{
-        label: 'Learn More',
-        click: () => {
-            shell.openExternal('http://electron.atom.io')
-        }
-    }]
-}]
-
-function addUpdateMenuItems (items, position) {
-    if (process.mas) return
-
-    const version = app.getVersion()
-    let updateItems = [{
-        label: `Version ${version}`,
-        enabled: false
-    }, {
-        label: 'Checking for Update',
-        enabled: false,
-        key: 'checkingForUpdate'
-    }, {
-        label: 'Check for Update',
-        visible: false,
-        key: 'checkForUpdate',
-        click: () => {
-            require('electron').autoUpdater.checkForUpdates()
-        }
-    }, {
-        label: 'Restart and Install Update',
-        enabled: true,
-        visible: false,
-        key: 'restartToUpdate',
-        click: () => {
-            require('electron').autoUpdater.quitAndInstall()
-        }
-    }]
-
-    items.splice.apply(items, [position, 0].concat(updateItems))
-}
-
-function findReopenMenuItem () {
-    const menu = Menu.getApplicationMenu()
-    if (!menu) return
-
-    let reopenMenuItem
-    menu.items.forEach(item => {
-        if (item.submenu) {
-            item.submenu.items.forEach(item => {
-                if (item.key === 'reopenMenuItem') {
-                    reopenMenuItem = item
-                }
-            })
-        }
-    })
-    return reopenMenuItem
-}
-
-if (process.platform === 'darwin') {
-    const name = app.getName()
-    template.unshift({
-        label: name,
-        submenu: [{
-            label: `About ${name}`,
-            role: 'about'
-        }, {
-            type: 'separator'
-        }, {
-            label: 'Services',
-            role: 'services',
-            submenu: []
-        }, {
-            type: 'separator'
-        }, {
-            label: `Hide ${name}`,
-            accelerator: 'Command+H',
-            role: 'hide'
-        }, {
-            label: 'Hide Others',
-            accelerator: 'Command+Alt+H',
-            role: 'hideothers'
-        }, {
-            label: 'Show All',
-            role: 'unhide'
-        }, {
-            type: 'separator'
-        }, {
-            label: 'Quit',
-            accelerator: 'Command+Q',
-            click: () => {
-                app.quit()
-            }
-        }]
-    })
-
-    // Window menu.
-    template[3].submenu.push({
-        type: 'separator'
-    }, {
-        label: 'Bring All to Front',
-        role: 'front'
-    })
-
-    addUpdateMenuItems(template[0].submenu, 1)
-}
-
-if (process.platform === 'win32') {
-    const helpMenu = template[template.length - 1].submenu
-    addUpdateMenuItems(helpMenu, 0)
-}
+autoUpdater.on('checking-for-update', () => {
+    log.info("Checking for updates...")
+});
+autoUpdater.on('update-available', (info) => {
+});
+autoUpdater.on('update-not-available', (info) => {
+    log.info("Update not available")
+});
+autoUpdater.on('error', (err) => {
+});
+autoUpdater.on('download-progress', (progressObj) => {
+    log.info("download progrss")
+});
+autoUpdater.on('update-downloaded', (info) => {
+    autoUpdater.quitAndInstall();
+});
