@@ -1,30 +1,31 @@
 /**
  * Created by Samuel on 30.03.2018.
  */
-const {BrowserWindow} = require('electron');
+const {BrowserWindow, app} = require('electron');
 const url = require('url');
 const path = require('path');
+require("./i18n");
 
 template = function () {
     const template = [
         {
-            label: "File",
+            label: i18n("menu.file"),
             submenu: [
                 {
-                    label: "Open",
+                    label: i18n("menu.file.open"),
                     click: function () {
-
+                        loadDialog()
                     }
                 },
                 {
-                    label: "Save",
+                    label: i18n("menu.file.save"),
                     click: function () {
-
+                        saveDialog();
                     }
                 },
                 {type: 'separator'},
                 {
-                    label: "Exit",
+                    label: i18n("menu.file.exit"),
                     click: function () {
 
                     }
@@ -32,19 +33,41 @@ template = function () {
             ]
         },
         {
-            label: 'Edit',
+            label: i18n("menu.edit"),
             submenu: [
-                {role: 'undo'},
-                {role: 'redo'},
+                {
+                    role: 'undo',
+                    label: i18n("menu.edit.undo")
+                },
+                {
+                    role: 'redo',
+                    label: i18n("menu.edit.redo")
+                },
                 {type: 'separator'},
-                {role: 'cut'},
-                {role: 'copy'},
-                {role: 'paste'},
-                {role: 'delete'},
-                {role: 'selectall'},
+                {
+                    role: 'cut',
+                    label: i18n("menu.edit.cut")
+                },
+                {
+                    role: 'copy',
+                    label: i18n("menu.edit.copy")
+                },
+                {
+                    role: 'paste',
+                    label: i18n("menu.edit.pase")
+                },
+                {
+                    role: 'delete',
+                    label: i18n("menu.edit.delete")
+                },
+                {
+                    role: 'selectall',
+                    label: i18n("menu.edit.selectall")
+                },
                 {type: 'separator'},
-                {label: "Settings",
-                click: function () {
+                {
+                    label: i18n("menu.edit.settings"),
+                    click: function () {
                     settingsWindow = new BrowserWindow({width: 800, height: 600, title: "Settings"});
                     settingsWindow.loadURL(url.format({
                         pathname: path.join(__dirname, '../sites/settings.html'),
@@ -56,31 +79,60 @@ template = function () {
             ]
         },
         {
-            label: 'View',
+            label: i18n("menu.view"),
             submenu: [
-                {role: 'reload'},
-                {role: 'forcereload'},
-                {role: 'toggledevtools'},
+                {
+                    role: 'reload',
+                    label: i18n("menu.edit.reload")
+                },
+                {
+                    role: 'forcereload',
+                    label: i18n("menu.edit.forcereload")
+                },
+                {
+                    role: 'toggledevtools',
+                    label: i18n("menu.edit.toggledevtools")
+                },
                 {type: 'separator'},
-                {role: 'resetzoom'},
-                {role: 'zoomin'},
-                {role: 'zoomout'},
+                {
+                    role: 'resetzoom',
+                    label: i18n("menu.edit.resetzoom")
+                },
+                {
+                    role: 'zoomin',
+                    label: i18n("menu.edit.zoomin")
+                },
+                {
+                    role: 'zoomout',
+                    label: i18n("menu.edit.zoomout")
+                },
                 {type: 'separator'},
-                {role: 'togglefullscreen'}
+                {
+                    role: 'togglefullscreen',
+                    label: i18n("menu.edit.togglefullscreen")
+                }
             ]
         },
         {
             role: 'window',
+            label: i18n("menu.window"),
             submenu: [
-                {role: 'minimize'},
-                {role: 'close'}
+                {
+                    role: 'minimize',
+                    label: i18n("menu.window.minimize")
+                },
+                {
+                    role: 'close',
+                    label: i18n("menu.window.close")
+                }
             ]
         },
         {
             role: 'help',
+            label: i18n("menu.help"),
             submenu: [
                 {
-                    label: "About",
+                    label: i18n("menu.help.about"),
                     click(){
                         aboutWindow = new BrowserWindow({width: 800, height: 600, title: "About"});
                         aboutWindow.loadURL(url.format({
@@ -99,15 +151,39 @@ template = function () {
         template.unshift({
             label: app.getName(),
             submenu: [
-                {role: 'about'},
+                {
+                    role: 'about',
+                    label: i18n("menu.about")
+                },
                 {type: 'separator'},
-                {role: 'services', submenu: []},
+                {
+                    role: 'services',
+                    submenu: [],
+                    label: i18n("menu.services")
+                },
                 {type: 'separator'},
-                {role: 'hide'},
-                {role: 'hideothers'},
-                {role: 'unhide'},
+                {
+                    role: 'toggledevtools',
+                    label: i18n("menu.edit.toggledevtools")
+                },
                 {type: 'separator'},
-                {role: 'quit'}
+                {
+                    role: 'hide',
+                    label: i18n("menu.hide")
+                },
+                {
+                    role: 'hideothers',
+                    label: i18n("menu.hideothers")
+                },
+                {
+                    role: 'unhide',
+                    label: i18n("menu.unhide")
+                },
+                {type: 'separator'},
+                {
+                    role: 'quit',
+                    label: i18n("menu.quit")
+                }
             ]
         });
 
@@ -115,21 +191,39 @@ template = function () {
         template[1].submenu.push(
             {type: 'separator'},
             {
-                label: 'Speech',
+                label: i18n("menu.speech"),
                 submenu: [
-                    {role: 'startspeaking'},
-                    {role: 'stopspeaking'}
+                    {
+                        role: 'startspeaking',
+                        label: i18n("menu.startspeaking")
+                    },
+                    {
+                        role: 'stopspeaking',
+                        label: i18n("menu.stopspeaking")
+                    }
                 ]
             }
         );
 
         // Window menu
         template[3].submenu = [
-            {role: 'close'},
-            {role: 'minimize'},
-            {role: 'zoom'},
+            {
+                role: 'close',
+                label: i18n("menu.close")
+            },
+            {
+                role: 'minimize',
+                label: i18n("menu.minimize")
+            },
+            {
+                role: 'zoom',
+                label: i18n("menu.zoom")
+            },
             {type: 'separator'},
-            {role: 'front'}
+            {
+                role: 'front',
+                label: i18n("menu.front")
+            }
         ]
     }
     return template;

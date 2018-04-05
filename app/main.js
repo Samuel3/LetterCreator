@@ -1,9 +1,9 @@
 const path = require('path')
 const url = require('url')
 const osLocale = require('os-locale');
-const os = require('os')
-const fs = require('fs')
-const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron')
+const os = require('os');
+const fs = require('fs');
+const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const store = require('data-store')('my-app');
 const log = require('electron-log');
 require("./js/i18n");
@@ -12,7 +12,7 @@ require("./js/MenuTemplate")
 console.log(i18n("menu.file"))
 
 app.commandLine.appendSwitch('remote-debugging-port', '9222')
-const autoUpdater = require("electron-updater").autoUpdater
+const autoUpdater = require("electron-updater").autoUpdater;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
@@ -111,34 +111,43 @@ app.on('activate', function () {
 });
 
 // In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-ipcMain.on('save-dialog', (event) => {
+function saveDialog() {
     const options = {
         title: 'Save a letter',
         filters: [
             {name: 'Letter', extensions: ['let']}
         ]
-    }
+    };
     dialog.showSaveDialog(options, (filename) => {
-        event.sender.send('saved-file', filename)
+        mainWindow.send('saved-file', filename)
     })
+}
+
+// code. You can also put them in separate files and require them here.
+ipcMain.on('save-dialog', () => {
+    saveDialog();
 });
 
-ipcMain.on('open-file-dialog', (event) => {
+function loadDialog() {
     dialog.showOpenDialog({
         filters: [{name: 'Letters', extensions: ['let']}],
         properties: ['openFile']
     }, (files) => {
         if (files) {
-            event.sender.send('selected-directory', files)
+            mainWindow.send('selected-directory', files)
         }
     })
+}
+
+ipcMain.on('open-file-dialog', () => {
+    loadDialog();
 });
 
 autoUpdater.on('checking-for-update', () => {
     log.info("Checking for updates...")
 });
 autoUpdater.on('update-available', (info) => {
+
 });
 autoUpdater.on('update-not-available', (info) => {
     log.info("Update not available")
@@ -146,7 +155,7 @@ autoUpdater.on('update-not-available', (info) => {
 autoUpdater.on('error', (err) => {
 });
 autoUpdater.on('download-progress', (progressObj) => {
-    log.info("download progrss")
+    log.info("download progress")
 });
 autoUpdater.on('update-downloaded', (info) => {
     autoUpdater.quitAndInstall();

@@ -9,9 +9,10 @@
     "postinstall": "install-app-deps",
     "start": "npm install && electron ./app",
     "pack": "build --dir",
-    "prerelease": "node build/prebuild.js",
+    "prerelease": "node build/prebuild.js && mocha",
     "dist": "build",
-    "release": "build"
+    "release": "build",
+    "test": "mocha"
   },
   "build": {
     "appId": "LetterCreator",
@@ -41,6 +42,8 @@
   },
   "devDependencies": {
     "electron": "latest",
-    "electron-builder": "latest"
+    "electron-builder": "latest",
+    "mocha": "^5.0.5",
+    "spectron": "^3.8.0"
   }
 }

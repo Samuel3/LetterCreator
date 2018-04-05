@@ -33,5 +33,10 @@
   "menu.speech": "Sprache",
   "menu.speech.startspeaking": "Sprache starten",
   "menu.speech.stopspeaking": "Sprache stoppen",
-  "menu.front": "Vordergrund"
+  "menu.front": "Vordergrund",
+  "message.letterstored": "Brief gespeichert",
+  "letter.subject": "Betreff: Ihr Schreiben vom",
+  "letter.greeting": "Grüße<br><br>Absender",
+  "letter.place":"Ort, den",
+  "letter.content": "Sehr geehrter Herr <br><br>Lorem Ipsum"
 }

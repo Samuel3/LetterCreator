@@ -1,14 +1,25 @@
 var store;
 const {ipcRenderer} = require('electron');
 const fs = require('fs');
+const version = require("../package.json").version;
+require("./i18n");
 
 $(document).ready(function () {
     store = require('data-store')('my-app');
+    var history = getStoredData("history");
+    if ($.isArray(history)) {
+        history = history [0];
+    }
+    console.log(history)
     $("#print-pdf").click(function () {
-        ipcRenderer.send('print-to-pdf')
+        ipcRenderer.send('print-to-pdf');
+        showMessage(i18n("message.letterstored"), 10000);
+        storeHistory();
     });
     $("#print").click(function () {
-        ipcRenderer.send('print')
+        ipcRenderer.send('print');
+        showMessage(i18n("message.letterstored"), 10000);
+        storeHistory();
     });
     var table = createAddressTable(getStoredData("address"));
     var date = new Date();
@@ -38,15 +49,20 @@ $(document).ready(function () {
     _select.append($("<option>", {"html": "Add sender"}));
     _fieldset.append(_select);
     var firstReceiver = $($(table.children()[1]).children()[0]);
-    var _address = $("<div>", {"id":"address", "html": "<div id='receiver'>" + getAddress(firstReceiver).join("<br>") + "</div>"})
-    var _dateField = $("<div>", {"id":"date", "contenteditable":true,"html":"<div id='place'>Reutlingen, den </div><input type='text' id='datepicker'>"})
-    var _subject = $("<input>", {"id":"subject", "type": "text"}).val("Betreff: Ihr Schreiben vom")
+    var _address = $("<div>", {
+        "id": "address",
+        "html": "<div id='receiver'>" + getAddress(firstReceiver).join("<br>") + "</div>"
+    });
+    var place = history.place ? history.place : i18n("letter.place");
+    var _dateField = $("<div>", {"id":"date", "contenteditable":true,"html":"<div id='place'>" + place +"</div><input type='text' id='datepicker'>"})
+    var _subject = $("<input>", {
+        "id": "subject",
+        "type": "text"
+    }).val(history.subject ? history.subject : i18n("letter.subject"));
     var _text = $("<div>", {"id": "text", "contenteditable": true});
-    _text.html(("Sehr geehrter Herr <br><br>Lorem Ipsum"));
-	if (typeof getStoredData("greeting") === "undefined"){
-		setStoredData("greeting", "Grüße <br><br>Samuel Mathes")
-	}
-    var _greeting = $("<div>", {"id": "greeting", "contenteditable": true}).html(getStoredData("greeting"));
+    var content = history.content ? history.content : i18n("letter.content");
+    _text.html(content);
+    var _greeting = $("<div>", {"id": "greeting", "contenteditable": true}).html(history.greeting ? history.greeting : i18n("letter.greeting"));
     var hr1 = $("<div>", {"id": "hr1", "class": "falzmarken"});
     var hr2 = $("<div>", {"id": "hr2", "class": "falzmarken"});
     var hr3 = $("<div>", {"id": "hr3", "class": "falzmarken"});
@@ -134,7 +150,7 @@ $(document).ready(function () {
         ipcRenderer.send('save-dialog');
     })
     $("#load").click(function () {
-        ipcRenderer.send('open-file-dialog')
+        ipcRenderer.send('open-file-dialog');
     })
     $(document).on({
         'dragover dragenter': function(e) {
@@ -301,7 +317,8 @@ function getCurrentContent() {
         content: $("#text").html(),
         greeting: $("#greeting").html(),
         foldingMarks: $("#checkbox-1")[0].checked,
-        date: $("#datepicker").val()
+        date: $("#datepicker").val(),
+        "version": version
     }
 }
 
@@ -353,19 +370,27 @@ ipcRenderer.on('file-open', (event, path) => {
 });
 
 ipcRenderer.on("closed", () => {
-    var currentContent = getCurrentContent();
-    var history = getStoredData("history");
-    if (typeof history !== "undefined") {
-        setStoredData("history", [getCurrentContent()]);
-    } else {
-        if (JSON.stringify(currentContent) !== JSON.stringify(history[0])) {
-            history = history.unshift(currentContent);
-            setStoredData("history", history);
-        }
-    }
+    storeHistory();
 });
 
 ipcRenderer.on('wrote-pdf', function (event, path) {
     const message = `Wrote PDF to: ${path}`;
     document.getElementById('pdf-path').innerHTML = message
 });
+
+function showMessage(message, delay) {
+    $("#messageBox").append($("<div>", {"class":"message", html: message}).delay(delay).hide({"duration": "2000", easing: 'easeOutBounce'}).effect("shake"))
+}
+
+function storeHistory() {
+    var currentContent = getCurrentContent();
+    var history = getStoredData("history");
+    if (typeof history === "undefined") {
+        setStoredData("history", [getCurrentContent()]);
+    } else {
+        if (JSON.stringify(currentContent) !== JSON.stringify(history[0])) {
+            history.unshift(currentContent);
+            setStoredData("history", history);
+        }
+    }
+}

@@ -33,5 +33,10 @@
   "menu.speech": "Speech",
   "menu.speech.startspeaking": "Start speaking",
   "menu.speech.stopspeaking": "Stop speaking",
-  "menu.front": "Front"
+  "menu.front": "Front",
+  "message.letterstored": "Letter stored",
+  "letter.subject": "Subject: Your letter from: ",
+  "letter.greeting": "Best Regards<br><br>Sender",
+  "letter.place": "Place, ",
+  "letter.content": "Dear Mr<br><br>Lorem ipsum"
 }
