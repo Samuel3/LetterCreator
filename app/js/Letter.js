@@ -28,7 +28,7 @@ $(document).ready(function () {
         e.stopPropagation();
     });
     var _select = $("<select>", {"name": "sender", "id": "sender"}).change(function (e) {
-        if ($("#sender option:selected").text() === "Add sender") {
+        if ($("#sender option:selected").text() === i18n("message.addsender")) {
             $("#formSender").dialog("open");
         }
     }).click(function (e) {
@@ -46,7 +46,7 @@ $(document).ready(function () {
         var _option = $("<option>").html(data);
         _select.append(_option);
     };
-    _select.append($("<option>", {"html": "Add sender"}));
+    _select.append($("<option>", {"html": i18n("message.addsender")}));
     _fieldset.append(_select);
     var firstReceiver = $($(table.children()[1]).children()[0]);
     var _address = $("<div>", {
@@ -139,6 +139,12 @@ $(document).ready(function () {
             e.preventDefault();
         }
     });
+    if (history.sender) {
+        $("#sender").val(history.sender)
+    }
+    if (history.receiver) {
+        $("#receiver").html(history.receiver);
+    }
 
     $("#print-pdf").click(function () {
         beforePrint();
@@ -301,7 +307,7 @@ function getAddressDataFromTable() {
 function getSenderDataFromDropdown() {
     var senderData = [];
     $("#sender option").each(function (i, el) {
-        if ($(el).val() !== "Add sender") {
+        if ($(el).val() !== i18n("message.addsender")) {
             senderData.push($(el).val());
         }
     });
@@ -376,6 +382,10 @@ ipcRenderer.on("closed", () => {
 ipcRenderer.on('wrote-pdf', function (event, path) {
     const message = `Wrote PDF to: ${path}`;
     document.getElementById('pdf-path').innerHTML = message
+});
+
+ipcRenderer.on("message", function (event, content) {
+    showMessage(content, 5000);
 });
 
 function showMessage(message, delay) {

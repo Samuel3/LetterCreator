@@ -7,9 +7,7 @@ const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const store = require('data-store')('my-app');
 const log = require('electron-log');
 require("./js/i18n");
-require("./js/MenuTemplate")
-
-console.log(i18n("menu.file"))
+require("./js/MenuTemplate");
 
 app.commandLine.appendSwitch('remote-debugging-port', '9222')
 const autoUpdater = require("electron-updater").autoUpdater;
@@ -40,6 +38,16 @@ ipcMain.on('print', function (event) {
     win.webContents.print({pageSize: "A4"}, function (error, data) {
         if (error) throw error
     })
+});
+
+ipcMain.on("reload", function () {
+    const menu = Menu.buildFromTemplate(template());
+    mainWindow.setMenu(menu)
+    mainWindow.reload();
+});
+
+ipcMain.on("message", function (event, content) {
+    mainWindow.webContents.send("message", content);
 });
 
 let mainWindow;

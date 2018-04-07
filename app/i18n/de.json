@@ -35,8 +35,14 @@
   "menu.speech.stopspeaking": "Sprache stoppen",
   "menu.front": "Vordergrund",
   "message.letterstored": "Brief gespeichert",
+  "message.addsender": "Sender hinzufügen",
+  "message.chooselang": "Sprache: ",
+  "message.historysize": "Anzahl gespeicherter Briefe",
+  "message.stored": "Einstellungen gespeichert",
   "letter.subject": "Betreff: Ihr Schreiben vom",
   "letter.greeting": "Grüße<br><br>Absender",
   "letter.place":"Ort, den",
-  "letter.content": "Sehr geehrter Herr <br><br>Lorem Ipsum"
+  "letter.content": "Sehr geehrter Herr <br><br>Lorem Ipsum",
+  "button.ok": "OK",
+  "button.abort": "Abbrechen"
 }

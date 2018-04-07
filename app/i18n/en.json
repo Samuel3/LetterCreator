@@ -35,8 +35,14 @@
   "menu.speech.stopspeaking": "Stop speaking",
   "menu.front": "Front",
   "message.letterstored": "Letter stored",
+  "message.addsender": "Add sender",
+  "message.chooselang": "Language: ",
+  "message.historysize": "Number of stored letters",
+  "message.stored": "Settings stored",
   "letter.subject": "Subject: Your letter from: ",
   "letter.greeting": "Best Regards<br><br>Sender",
   "letter.place": "Place, ",
-  "letter.content": "Dear Mr<br><br>Lorem ipsum"
+  "letter.content": "Dear Mr<br><br>Lorem ipsum",
+  "button.ok": "OK",
+  "button.abort": "Cancel"
 }
