@@ -1,5 +1,5 @@
-const path = require('path')
-const url = require('url')
+const path = require('path');
+const url = require('url');
 const osLocale = require('os-locale');
 const os = require('os');
 const fs = require('fs');
@@ -10,7 +10,7 @@ require("./js/i18n");
 require("./js/MenuTemplate");
 
 app.commandLine.appendSwitch('remote-debugging-port', '9222')
-const autoUpdater = require("electron-updater").autoUpdater;
+const {autoUpdater} = require("electron-updater");
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
@@ -19,7 +19,6 @@ ipcMain.on('print-to-pdf', function (event) {
     const pdfPath = path.join(os.tmpdir(), 'print.pdf');
     var win = BrowserWindow.fromWebContents(event.sender)
     // Use default printing options
-    console.log("Print-to-pdf")
     win.webContents.printToPDF({pageSize: "A4"}, function (error, data) {
         if (error) throw error
         fs.writeFile(pdfPath, data, function (error) {
@@ -41,8 +40,6 @@ ipcMain.on('print', function (event) {
 });
 
 ipcMain.on("reload", function () {
-    const menu = Menu.buildFromTemplate(template());
-    mainWindow.setMenu(menu)
     mainWindow.reload();
 });
 
@@ -61,7 +58,7 @@ function createWindow () {
         protocol: 'file:',
         slashes: true
     }));
-    const menu = Menu.buildFromTemplate(template());
+    menu = Menu.buildFromTemplate(template());
     Menu.setApplicationMenu(menu);
     mainWindow.webContents.on('did-finish-load', function () {
         for (arg of process.argv) {

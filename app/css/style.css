@@ -148,4 +148,5 @@ select {
     margin-bottom: 3px;
     background-color: white;
     padding: 3px;
+    box-shadow: 10px 10px 5px grey;
 }

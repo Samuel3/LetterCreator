@@ -10,6 +10,9 @@ $(document).ready(function () {
     if ($.isArray(history)) {
         history = history [0];
     }
+    if (typeof history === "undefined") {
+        history = {}
+    }
     console.log(history)
     $("#print-pdf").click(function () {
         ipcRenderer.send('print-to-pdf');
@@ -166,7 +169,9 @@ $(document).ready(function () {
     document.body.ondrop = (ev) => {
         setContent(JSON.parse(fs.readFileSync(ev.dataTransfer.files[0].path + "")))
         ev.preventDefault()
-    }
+    };
+    activateHistoryButton();
+    activateExportButton();
 });
 
 function createAddressTable(addressData) {
@@ -404,3 +409,35 @@ function storeHistory() {
         }
     }
 }
+
+function activateHistoryButton() {
+    var _historyPreview = $("<div>", {
+        "id": "historyPreview",
+        title: i18n("title.historypreview"),
+        "css": "overflow:auto"
+    }).dialog({
+        autoOpen: false,
+        appendTo: "#content",
+        maxHeight: "80%"
+    });
+    var entries = getStoredData("history");
+    if ($.isArray(entries)) {
+        $(entries).each(function (i, el) {
+            var _canvas = $("<canvas>", {"id": i + ""}).appendTo(_historyPreview);
+            var _ctx = _canvas[0].getContext("2d");
+            _ctx.font = "10px Arial";
+            _ctx.strokeText(el.receiver, 10, 10)
+        });
+    } else {
+        // Todo message no history
+    }
+    $("#history").click(function () {
+        _historyPreview.dialog("open");
+    })
+}
+
+function activateExportButton() {
+
+}
+
+//# sourceURL=Letter.js

@@ -23,3 +23,6 @@ const langFile = require("../i18n/" + locale + ".json");
 i18n = function(key) {
     return langFile[key];
 };
+
+
+//# sourceURL=i18n.js

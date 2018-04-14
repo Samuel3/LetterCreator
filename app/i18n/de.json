@@ -39,10 +39,14 @@
   "message.chooselang": "Sprache: ",
   "message.historysize": "Anzahl gespeicherter Briefe",
   "message.stored": "Einstellungen gespeichert",
+  "message.historydeleted": "Briefe gelöscht",
+  "message.requiresrestart": "Erfordert einen Neustart",
   "letter.subject": "Betreff: Ihr Schreiben vom",
   "letter.greeting": "Grüße<br><br>Absender",
   "letter.place":"Ort, den",
   "letter.content": "Sehr geehrter Herr <br><br>Lorem Ipsum",
   "button.ok": "OK",
-  "button.abort": "Abbrechen"
+  "button.abort": "Abbrechen",
+  "button.deleteAll": "Historie löschen?",
+  "title.historypreview":"Gespeicherte Briefe"
 }

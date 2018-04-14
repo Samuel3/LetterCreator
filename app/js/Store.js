@@ -9,3 +9,5 @@ Store.prototype.getStoredData = function (key) {
 Store.prototype.storeData = function (key, value) {
     store.set(key, value);
 };
+
+//# sourceURL=Store.js

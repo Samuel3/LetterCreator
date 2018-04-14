@@ -228,3 +228,5 @@ template = function () {
     }
     return template;
 };
+
+//# sourceURL=MenuTemplate.js

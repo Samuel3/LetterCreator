@@ -6,3 +6,10 @@ h1 {
 p {
     margin-bottom: 3px;
 }
+
+#messageField {
+    color: red;
+    margin-top: 10px;
+    position: absolute;
+    bottom: 10px;
+}

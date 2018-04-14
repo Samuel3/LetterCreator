@@ -39,10 +39,14 @@
   "message.chooselang": "Language: ",
   "message.historysize": "Number of stored letters",
   "message.stored": "Settings stored",
+  "message.historydeleted": "Letters deleted",
+  "message.requiresrestart": "Requires restart",
   "letter.subject": "Subject: Your letter from: ",
   "letter.greeting": "Best Regards<br><br>Sender",
   "letter.place": "Place, ",
   "letter.content": "Dear Mr<br><br>Lorem ipsum",
   "button.ok": "OK",
-  "button.abort": "Cancel"
+  "button.abort": "Cancel",
+  "button.deleteAll": "Delete History?",
+  "title.historypreview": "Stored letters"
 }
