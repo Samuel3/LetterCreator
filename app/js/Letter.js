@@ -3,6 +3,7 @@ const {ipcRenderer} = require('electron');
 const fs = require('fs');
 const version = require("../package.json").version;
 require("./i18n");
+const Svg = require("svg.js");
 
 $(document).ready(function () {
     store = require('data-store')('my-app');
@@ -411,6 +412,7 @@ function storeHistory() {
 }
 
 function activateHistoryButton() {
+
     var _historyPreview = $("<div>", {
         "id": "historyPreview",
         title: i18n("title.historypreview"),
@@ -420,13 +422,12 @@ function activateHistoryButton() {
         appendTo: "#content",
         maxHeight: "80%"
     });
+    const svg = SVG("historyPreview").size("80%", 500);
     var entries = getStoredData("history");
     if ($.isArray(entries)) {
         $(entries).each(function (i, el) {
-            var _canvas = $("<canvas>", {"id": i + ""}).appendTo(_historyPreview);
-            var _ctx = _canvas[0].getContext("2d");
-            _ctx.font = "10px Arial";
-            _ctx.strokeText(el.receiver, 10, 10)
+            svg.text(el.receiver.replace(/<br>/g, "\n")).attr({"y": 70 * i, "font-size": "10px"});
+            svg.text(el.content.replace(/<br>/g, "\n")).attr({"y": 70 * i + 20, "font-size": "10px"})
         });
     } else {
         // Todo message no history
