@@ -415,19 +415,38 @@ function activateHistoryButton() {
 
     var _historyPreview = $("<div>", {
         "id": "historyPreview",
-        title: i18n("title.historypreview"),
-        "css": "overflow:auto"
+        title: i18n("title.historypreview")
+    }).css({
+        height:"350px",
+        overflow:"auto"
     }).dialog({
         autoOpen: false,
-        appendTo: "#content",
-        maxHeight: "80%"
+        width: "80%",
+        appendTo: "#content"
     });
-    const svg = SVG("historyPreview").size("80%", 500);
+
+    var _content = $("<div>", {"id": "historyContent"}).css({
+        height: "350px",
+        overflow: "auto"
+    }).appendTo("#historyPreview");
+    const svg = SVG("historyContent").size("800", 800);
     var entries = getStoredData("history");
     if ($.isArray(entries)) {
         $(entries).each(function (i, el) {
-            svg.text(el.receiver.replace(/<br>/g, "\n")).attr({"y": 70 * i, "font-size": "10px"});
-            svg.text(el.content.replace(/<br>/g, "\n")).attr({"y": 70 * i + 20, "font-size": "10px"})
+            svg.text(replaceCRLFForForFirstTwoLines(el.receiver)).attr({"y": 70 * i, "font-size": "10px", "data": el.receiver + "", "data-full": JSON.stringify(el)});
+            svg.text(replaceCRLFForForFirstTwoLines(el.content.replace("<br>",""))).attr({"y": 70 * i + 30, "font-size": "10px", "data": el.content, "data-full": JSON.stringify(el)})
+        });
+        $(document).tooltip({
+            items: "text",
+            content: function () {
+                var element = $(this);
+                return element.attr("data");
+            }
+        });
+        $(document).find("text").dblclick(function () {
+            var el = $(this)
+            setContent(JSON.parse(el.attr("data-full")));
+            $("#historyPreview").dialog("close");
         });
     } else {
         // Todo message no history
@@ -435,6 +454,23 @@ function activateHistoryButton() {
     $("#history").click(function () {
         _historyPreview.dialog("open");
     })
+}
+
+function replaceCRLFForForFirstTwoLines(text) {
+    var val = getFirstTwoLines(text, "<br>");
+    return val.replace(/<br>/g, "\n");
+}
+
+function getFirstTwoLines(text, pattern) {
+    text = text + "<br>"
+    var i = text.indexOf(pattern) + pattern.length;
+    if (-1 !== i) {
+        i = i + text.substr(i).indexOf(pattern);
+    }
+    if (-1 !== i) {
+        return text.substr(0, i);
+    }
+    return text;
 }
 
 function activateExportButton() {
