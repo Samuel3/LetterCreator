@@ -4,6 +4,8 @@ const fs = require('fs');
 const version = require("../package.json").version;
 require("./i18n");
 const Svg = require("svg.js");
+var officegen = require('officegen');
+var async = require ( 'async' );
 
 $(document).ready(function () {
     store = require('data-store')('my-app');
@@ -474,7 +476,52 @@ function getFirstTwoLines(text, pattern) {
 }
 
 function activateExportButton() {
+    $("#exportWord").click(function () {
+        var docx = officegen ( 'docx' );
+        var _content = getCurrentContent();
+        var _receiverP = docx.createP();
+        var _receivers = _content.receiver.split("<br>");
+        for (var i = 0; i < 3; i++) {
+            _receiverP.addLineBreak();
+        }
+        _receiverP.addText(_receivers[0]);
+        for (var i = 1; i < _receivers.length; i++) {
+            _receiverP.addLineBreak();
+            _receiverP.addText(_receivers[i]);
+        }
+        for (var i = 0; i < 3; i++) {
+            _receiverP.addLineBreak();
+        }
+        _receiverP.addText(_content.subject);
+        _receiverP.addLineBreak()
+        _receiverP.addLineBreak()
+        _receiverP.addText(_content.content);
+        _receiverP.addLineBreak()
+        _receiverP.addLineBreak()
+        _receiverP.addText(_content.greeting);
 
+
+        var out = fs.createWriteStream ( '/Users/samuel/documents/out.docx' );
+
+        out.on ( 'error', function ( err ) {
+            console.log ( err );
+        });
+
+        async.parallel ([
+            function ( done ) {
+                out.on ( 'close', function () {
+                    console.log ( 'Finish to create a DOCX file.' );
+                    done ( null );
+                });
+                docx.generate ( out );
+            }
+
+        ], function ( err ) {
+            if ( err ) {
+                console.log ( 'error: ' + err );
+            } // Endif.
+        });
+    })
 }
 
 //# sourceURL=Letter.js
