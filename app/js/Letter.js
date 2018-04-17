@@ -479,25 +479,30 @@ function activateExportButton() {
     $("#exportWord").click(function () {
         var docx = officegen ( 'docx' );
         var _content = getCurrentContent();
-        var _receiverP = docx.createP();
         var _receivers = _content.receiver.split("<br>");
         for (var i = 0; i < 3; i++) {
-            _receiverP.addLineBreak();
+            docx.createP();
         }
+        var _receiverP = docx.createP();
+        _receiverP.addText(_content.sender, {underline: true, font_size: 10});
+        _receiverP.addLineBreak();
         _receiverP.addText(_receivers[0]);
         for (var i = 1; i < _receivers.length; i++) {
             _receiverP.addLineBreak();
             _receiverP.addText(_receivers[i]);
         }
         for (var i = 0; i < 3; i++) {
-            _receiverP.addLineBreak();
+            docx.createP()
         }
-        _receiverP.addText(_content.subject);
-        _receiverP.addLineBreak()
-        _receiverP.addLineBreak()
+        _receiverP = docx.createP()
+        _receiverP.addText(_content.subject, {"bold": true});
+        docx.createP()
+        docx.createP()
+        _receiverP = docx.createP()
         _receiverP.addText(_content.content);
-        _receiverP.addLineBreak()
-        _receiverP.addLineBreak()
+        docx.createP()
+        docx.createP()
+        _receiverP = docx.createP()
         _receiverP.addText(_content.greeting);
 
 
