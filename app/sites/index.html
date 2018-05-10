@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../css/jquery-ui.structure.min.css"/>
     <script>window.$ = window.jQuery = require('jquery');</script>
     <script>require('../js/jquery-ui')</script>
-    <script>require('../js/Letter')</script>
+    <script>require('../js/LetterStructure')</script>
     <title>Letter Creator</title>
   </head>
   <body bgcolor="white">
@@ -17,13 +17,13 @@
   <div id="content"></div>
   <label for="checkbox-1" id="foldingMarks">Faltmarken</label>
   <input type="checkbox" name="checkbox-1" id="checkbox-1">
-  <button class="demo-button" id="print-pdf">Print to pdf</button>
-  <button class="demo-button" id="print">Print</button>
-  <button id="history">History</button>
-  <button id="exportWord">Export to word</button>
-  <button id="save">Save</button>
-  <button id="load">Load</button>
-  <button id="reset">Reset</button>
+  <button id="print-pdf" class="ui-button"><span class="ui-icon-print-pdf icon"></span>Print to pdf</button>
+  <button id="print" class="ui-button"><span class="ui-icon-printer icon"></span>Print</button>
+  <button id="history" class="ui-button"><span class="ui-icon-history icon"></span>History</button>
+  <button id="exportWord" class="ui-button"><span class="ui-icon-word icon"></span>Export to word</button>
+  <button id="save" class="ui-button"><span class="ui-icon-save icon"></span>Save</button>
+  <button id="load" class="ui-button"><span class="ui-icon-load icon"></span>Load</button>
+  <button id="reset" class="ui-button"><span class="ui-icon-reset icon"></span>Reset</button>
   <div id="pdf-path"></div>
   <div id="messageBox"></div>
   </body>

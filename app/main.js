@@ -1,3 +1,4 @@
+// noinspection JSAnnotator
 const path = require('path');
 const url = require('url');
 const osLocale = require('os-locale');
@@ -9,7 +10,7 @@ const log = require('electron-log');
 require("./js/i18n");
 require("./js/MenuTemplate");
 
-app.commandLine.appendSwitch('remote-debugging-port', '9222')
+app.commandLine.appendSwitch('remote-debugging-port', '9222');
 const {autoUpdater} = require("electron-updater");
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
@@ -51,7 +52,7 @@ let mainWindow;
 
 function createWindow () {
     autoUpdater.checkForUpdates();
-    mainWindow = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800"});
+    mainWindow = new BrowserWindow({width: 640, height: 480, backgroundColor: "#04C800"});
     mainWindow.maximize();
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '/sites/index.html'),
@@ -133,6 +134,24 @@ ipcMain.on('save-dialog', () => {
     saveDialog();
 });
 
+// In this file you can include the rest of your app's specific main process
+function exportDialog() {
+    const options = {
+        title: 'Export a letter',
+        filters: [
+            {name: 'Word Document', extensions: ['docx']}
+        ]
+    };
+    dialog.showSaveDialog(options, (filename) => {
+        mainWindow.send('exported-file', filename)
+    })
+}
+
+// code. You can also put them in separate files and require them here.
+ipcMain.on('export-dialog', () => {
+    exportDialog();
+});
+
 function loadDialog() {
     dialog.showOpenDialog({
         filters: [{name: 'Letters', extensions: ['let']}],
@@ -144,6 +163,21 @@ function loadDialog() {
     })
 }
 
+function showReleaseNotes(releaseNotes) {
+    var releaseNote = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800"});
+    releaseNote.loadURL(url.format({
+        pathname: path.join(__dirname, '/sites/update.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
+    releaseNote.on("ready-to-show", () => {
+        console.log("ready-to-show")
+    });
+    releaseNote.toggleDevTools()
+    setTimeout(function(){releaseNote.webContents.send("releaseNotes-available", releaseNotes);}, 1000)
+
+}
+
 ipcMain.on('open-file-dialog', () => {
     loadDialog();
 });
@@ -152,10 +186,11 @@ autoUpdater.on('checking-for-update', () => {
     log.info("Checking for updates...")
 });
 autoUpdater.on('update-available', (info) => {
-
+    showReleaseNotes(info)
 });
 autoUpdater.on('update-not-available', (info) => {
-    log.info("Update not available")
+    showReleaseNotes(info)
+
 });
 autoUpdater.on('error', (err) => {
 });

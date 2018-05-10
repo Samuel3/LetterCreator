@@ -97,4 +97,7 @@
     div#historyPreview {
         display: none;
     }
+    button.ui-button {
+        display: none;
+    }
 }

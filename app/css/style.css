@@ -38,6 +38,7 @@ select {
 #content {
     border: 1px solid;
     padding: 3px;
+    margin-bottom: 10px;
 }
 #date {
     position: absolute;
@@ -55,9 +56,6 @@ select {
 }
 #address {
     padding-top: 1em;
-}
-#print-pdf {
-    margin-top: 2em;
 }
 #text {
     padding-top: 2em;
@@ -149,4 +147,42 @@ select {
     background-color: white;
     padding: 3px;
     box-shadow: 10px 10px 5px grey;
+}
+
+
+.icon {
+    padding-top: 24px;
+    padding-left: 22px;
+    position: relative;
+    top: 18px;
+    left: -10px;
+    background-repeat: no-repeat;
+}
+
+.ui-icon-print-pdf{
+    background-image: url("../img/file-pdf.png");
+}
+
+.ui-icon-printer {
+    background-image: url("../img/printer.png");
+}
+
+.ui-icon-history {
+    background-image: url("../img/history.png");
+}
+
+.ui-icon-word {
+    background-image: url("../img/file-word.png");
+}
+
+.ui-icon-save {
+    background-image: url("../img/download.png");
+}
+
+.ui-icon-load {
+    background-image: url("../img/upload.png");
+}
+
+.ui-icon-reset {
+    background-image: url("../img/delete-empty.png");
 }
