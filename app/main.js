@@ -90,6 +90,12 @@ function createWindow () {
               settingsWindow = null;
           }catch (e){}
       }
+      if (typeof releaseNote !== "undefined") {
+          try {
+              releaseNote.close();
+              releaseNote = null;
+          }catch (e){}
+      }
   })
 }
 
@@ -164,7 +170,7 @@ function loadDialog() {
 }
 
 function showReleaseNotes(releaseNotes) {
-    var releaseNote = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800"});
+    releaseNote = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800"});
     releaseNote.loadURL(url.format({
         pathname: path.join(__dirname, '/sites/update.html'),
         protocol: 'file:',

@@ -2,7 +2,7 @@ const {ipcRenderer, remote} = require('electron');
 
 ipcRenderer.on("releaseNotes-available", (event, releaseNotes) => {
     console.log(releaseNotes)
-    $("#content").html(releaseNotes);
+    $("#content").html(releaseNotes.releaseNotes);
 });
 
 $(document).ready(function () {
