@@ -41,6 +41,8 @@
   "message.stored": "Settings stored",
   "message.historydeleted": "Letters deleted",
   "message.requiresrestart": "Requires restart",
+  "message.downloadcomplete": "Successfully downloaded next release",
+  "message.nextreleaseavailable": "Next Release available",
   "letter.subject": "Subject: Your letter from: ",
   "letter.greeting": "Best Regards<br><br>Sender",
   "letter.place": "Place, ",

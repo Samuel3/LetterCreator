@@ -1,5 +1,5 @@
 function Store() {
-    this.store = require('data-store')('my-app');
+    this.store = require('data-store')('LetterCreator');
 }
 
 Store.prototype.getStoredData = function (key) {

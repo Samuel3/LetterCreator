@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <title>About</title>
     <script>window.$ = window.jQuery = require('jquery');</script>
+    <script>require("../js/jquery-ui")</script>
+    <script>require("../js/About")</script>
     <link rel="stylesheet" href="../css/font.css"/>
     <link rel="stylesheet" href="../css/about.css"/>
-    <script>$(document).ready(function () {
-        var version = require("../package.json").version;
-        $("#content").html("LetterCreator was created by Samuel Mathes<br><br>Version: " + version +"<br><br>&copy; 2018 by Samuel Mathes");
-    })</script>
+    <link rel="stylesheet" href="../css/jquery-ui.structure.min.css"/>
+    <link rel="stylesheet" href="../css/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="../css/jquery-ui.theme.min.css"/>
+
 
 </head>
 <body>
     <h1>About LetterCreator</h1>
     <h2>Soli deo gloria</h2>
-    <img src="../img/Logo_Small.png">
+    <img id="logo" src="../img/Logo_Small.png">
     <div id="content"></div>
+    <div id="messageBox"></div>
+    <div id="progressbar"></div>
 </body>
 </html>

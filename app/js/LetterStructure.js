@@ -8,7 +8,7 @@ var officegen = require('officegen');
 var async = require ( 'async' );
 
 $(document).ready(function () {
-    store = require('data-store')('my-app');
+    store = require('data-store')('LetterCreator');
     var history = getStoredData("history");
     if ($.isArray(history)) {
         history = history [0];

@@ -5,7 +5,7 @@ const osLocale = require('os-locale');
 const os = require('os');
 const fs = require('fs');
 const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
-const store = require('data-store')('my-app');
+const store = require('data-store')('LetterCreator');
 const log = require('electron-log');
 require("./js/i18n");
 require("./js/MenuTemplate");
@@ -179,7 +179,6 @@ function showReleaseNotes(releaseNotes) {
     releaseNote.on("ready-to-show", () => {
         console.log("ready-to-show")
     });
-    releaseNote.toggleDevTools()
     setTimeout(function(){releaseNote.webContents.send("releaseNotes-available", releaseNotes);}, 1000)
 
 }
@@ -195,14 +194,19 @@ autoUpdater.on('update-available', (info) => {
     showReleaseNotes(info)
 });
 autoUpdater.on('update-not-available', (info) => {
-    showReleaseNotes(info)
+
 
 });
 autoUpdater.on('error', (err) => {
 });
 autoUpdater.on('download-progress', (progressObj) => {
+    if (aboutWindow) {
+        aboutWindow.webContents.send("progress", progressObj.percent)
+    }
     log.info("download progress")
+    log.info(JSON.stringify(progressObj))
 });
 autoUpdater.on('update-downloaded', (info) => {
+    mainWindow.webContents.send("message", i18n("message.downloadcomplete"));
     autoUpdater.quitAndInstall();
 });

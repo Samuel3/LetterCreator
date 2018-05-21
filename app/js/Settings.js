@@ -1,7 +1,7 @@
 require("./i18n");
 var Store = require("electron-store");
 const {remote, ipcRenderer} = require('electron');
-var datastore = require('data-store')('my-app')
+var datastore = require('data-store')('LetterCreator')
 
 $(document).ready(function () {
     // Todo show message to restart if message changed and saved

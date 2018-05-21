@@ -41,6 +41,8 @@
   "message.stored": "Einstellungen gespeichert",
   "message.historydeleted": "Briefe gelöscht",
   "message.requiresrestart": "Erfordert einen Neustart",
+  "message.downloadcomplete": "Erfolgreich nächstes Release heruntergeladen.",
+  "message.nextreleaseavailable": "Nächstes Release verfügbar",
   "letter.subject": "Betreff: Ihr Schreiben vom",
   "letter.greeting": "Grüße<br><br>Absender",
   "letter.place":"Ort, den",
