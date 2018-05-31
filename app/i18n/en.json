@@ -35,6 +35,7 @@
   "menu.speech.stopspeaking": "Stop speaking",
   "menu.front": "Front",
   "message.letterstored": "Letter stored",
+  "message.sendername": "Insert sender name",
   "message.addsender": "Add sender",
   "message.chooselang": "Language: ",
   "message.historysize": "Number of stored letters",
@@ -43,6 +44,11 @@
   "message.requiresrestart": "Requires restart",
   "message.downloadcomplete": "Successfully downloaded next release",
   "message.nextreleaseavailable": "Next Release available",
+  "message.nohistory": "Keine Historie verfügbar",
+  "message.noreceiver": "Doppelklicken um Adresse hinzuzufügen",
+  "message.quitandinstall": "Close and install",
+  "message.installafterclose": "Install after exit",
+  "message.remembermelater": "Remember me later",
   "letter.subject": "Subject: Your letter from: ",
   "letter.greeting": "Best Regards<br><br>Sender",
   "letter.place": "Place, ",
@@ -50,5 +56,6 @@
   "button.ok": "OK",
   "button.abort": "Cancel",
   "button.deleteAll": "Delete History?",
+  "button.delete": "Delete",
   "title.historypreview": "Stored letters"
 }
