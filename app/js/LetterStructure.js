@@ -113,32 +113,36 @@ $(document).ready(function () {
         });
         dialogContent.show();
     });
-    var form = $("<form>", {"id": "formSender", "title":"Create Sender", "html": "Enter Sender name"});
+    var form = $("<form>", {"id": "formSender", "title":i18n("message.addsender"), "html": i18n("message.sendername")});
     var input = $("<input>", {"id": "inputSender"});
     form.append(input);
     $("#content").append(form);
+    var _cancel = i18n("button.abort");
+    var _delete = i18n("button.delete");
+    var _buttons = {
+
+    };
+    _buttons[_cancel] = function () {
+        $(this).dialog("close");
+    }
+    _buttons[_delete] = function () {
+        var _delVal = $("#inputSender").val();
+        $("#sender > option").filter(function(i, el){return $(el).val() === _delVal}).remove();
+        setStoredData("sender", getSenderDataFromDropdown());
+        $(this).dialog("close");
+        $("#inputSender").val("");
+    }
+     _buttons["OK"] = function () {
+         var option = $("<option>").html($("#inputSender").val());
+         $("select option:last").before(option);
+         setStoredData("sender", getSenderDataFromDropdown());
+         $("#sender").val($("#inputSender").val());
+         $("#inputSender").val("");
+         $(this).dialog("close");
+     }
     form.dialog({
         autoOpen: false,
-        buttons: {
-            "Delete": function () {
-                var _delVal = $("#inputSender").val();
-                $("#sender > option").filter(function(i, el){return $(el).val() === _delVal}).remove();
-                setStoredData("sender", getSenderDataFromDropdown());
-                $(this).dialog("close");
-                $("#inputSender").val("");
-            },
-            "Cancel": function () {
-                $(this).dialog("close");
-            },
-            "OK": function () {
-                var option = $("<option>").html($("#inputSender").val());
-                $("select option:last").before(option);
-                setStoredData("sender", getSenderDataFromDropdown());
-                $("#sender").val($("#inputSender").val());
-                $("#inputSender").val("");
-                $(this).dialog("close");
-            }
-        }
+        buttons: _buttons
     }).keypress(function (e) {
         if (e.keyCode === $.ui.keyCode.ENTER) {
             $(this).parent().find("button:eq(3)").trigger("click");
@@ -163,7 +167,7 @@ $(document).ready(function () {
     })
     $("#load").click(function () {
         ipcRenderer.send('open-file-dialog');
-    })
+    });
     $(document).on({
         'dragover dragenter': function(e) {
             e.preventDefault();
@@ -261,12 +265,12 @@ function getAddress(tableRow) {
         fullAddress.push(getValueOfTableCell(attributes[9]));
     }
     if (fullAddress.length === 0) {
-        return ["", "", "", ""];
+        return [i18n("message.noreceiver"), "", "", ""];
     }
     return fullAddress;
 }
 function isCellEmpty(cell) {
-    return getValueOfTableCell(cell) === "";
+    return typeof getValueOfTableCell(cell) === "undefined";
 }
 
 function getValueOfTableCell(cell) {
@@ -332,7 +336,7 @@ function getCurrentContent() {
         greeting: $("#greeting").html(),
         foldingMarks: $("#checkbox-1")[0].checked,
         date: $("#datepicker").val(),
-        "version": version
+        "version": "1.0"
     }
 }
 
@@ -450,6 +454,37 @@ ipcRenderer.on("message", function (event, content) {
     showMessage(content, 5000);
 });
 
+
+ipcRenderer.on("updateDownloaded", (event, info) => {
+    var message = $("<div>", {"class": "message", html: i18n("message.downloadcomplete"), "id": "updateReady"});
+
+    var quitAndInstall = $("<a>", {
+        "href": "#",
+        "text": i18n("message.quitandinstall"),
+        "click": function () {
+            ipcRenderer.send("updateDirectly");
+        }
+    });
+
+    var installAfterClose = $("<a>", {
+        "href": "#",
+        "text": i18n("message.installafterclose"),
+        "click": function () {
+            ipcRenderer.send("updateAfterClose");
+            $("#updateReady").hide()
+        }
+    });
+    var nextRemember = $("<a>", {
+        "href": "#",
+        "text": i18n("message.remembermelater"),
+        "click": function () {
+            $("#updateReady").hide()
+        }
+    });
+    message.append(quitAndInstall).append(" ").append(installAfterClose).append(" ").append(nextRemember);
+    $("#messageBox").append(message);
+});
+
 function showMessage(message, delay) {
     $("#messageBox").append($("<div>", {"class":"message", html: message}).delay(delay).hide({"duration": "2000", easing: 'easeOutBounce'}).effect("shake"))
 }
@@ -504,7 +539,7 @@ function activateHistoryButton() {
             $("#historyPreview").dialog("close");
         });
     } else {
-        // Todo message no history
+        svg.text(i18n("message.nohistory"));
     }
     $("#history").click(function () {
         _historyPreview.dialog("open");

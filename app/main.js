@@ -7,6 +7,7 @@ const fs = require('fs');
 const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const store = require('data-store')('LetterCreator');
 const log = require('electron-log');
+var installUpdate = false;
 require("./js/i18n");
 require("./js/MenuTemplate");
 
@@ -69,9 +70,6 @@ function createWindow () {
         }
     });
 
-  // Open the DevTools.
-  //  mainWindow.webContents.openDevTools()
-
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
@@ -95,6 +93,9 @@ function createWindow () {
               releaseNote.close();
               releaseNote = null;
           }catch (e){}
+      }
+      if (installUpdate) {
+          autoUpdater.quitAndInstall();
       }
   })
 }
@@ -187,6 +188,14 @@ ipcMain.on('open-file-dialog', () => {
     loadDialog();
 });
 
+ipcMain.on('updateDirectly', () => {
+    autoUpdater.quitAndInstall();
+});
+
+ipcMain.on('updateAfterClose', () => {
+    installUpdate = true;
+});
+
 autoUpdater.on('checking-for-update', () => {
     log.info("Checking for updates...")
 });
@@ -206,7 +215,7 @@ autoUpdater.on('download-progress', (progressObj) => {
     log.info("download progress")
     log.info(JSON.stringify(progressObj))
 });
+
 autoUpdater.on('update-downloaded', (info) => {
-    mainWindow.webContents.send("message", i18n("message.downloadcomplete"));
-    autoUpdater.quitAndInstall();
+    mainWindow.webContents.send("updateDownloaded", info);
 });
