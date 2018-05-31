@@ -462,6 +462,7 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
         "href": "#",
         "text": i18n("message.quitandinstall"),
         "click": function () {
+            console.log("quit and install")
             ipcRenderer.send("updateDirectly");
         }
     });
@@ -470,6 +471,7 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
         "href": "#",
         "text": i18n("message.installafterclose"),
         "click": function () {
+            console.log("install after close")
             ipcRenderer.send("updateAfterClose");
             $("#updateReady").hide()
         }
@@ -478,6 +480,7 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
         "href": "#",
         "text": i18n("message.remembermelater"),
         "click": function () {
+            console.log("remember me later")
             $("#updateReady").hide()
         }
     });
