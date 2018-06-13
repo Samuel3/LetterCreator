@@ -465,6 +465,8 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
             console.log("quit and install")
             ipcRenderer.send("updateDirectly");
         }
+    }).click(function () {
+        ipcRenderer.send("updateDirectly");
     });
 
     var installAfterClose = $("<a>", {
@@ -475,6 +477,10 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
             ipcRenderer.send("updateAfterClose");
             $("#updateReady").hide()
         }
+    }).click(function () {
+
+            ipcRenderer.send("updateAfterClose");
+            $("#updateReady").hide()
     });
     var nextRemember = $("<a>", {
         "href": "#",
@@ -483,6 +489,8 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
             console.log("remember me later")
             $("#updateReady").hide()
         }
+    }).click(function () {
+        $("#updateReady").hide()
     });
     message.append(quitAndInstall).append(" ").append(installAfterClose).append(" ").append(nextRemember);
     $("#messageBox").append(message);
