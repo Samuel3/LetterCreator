@@ -2,8 +2,6 @@ os: unstable
 cache:
   - node_modules
 environment:
-  GH_TOKEN:
-      secure: fK836CflhDBugnKO8/6bb/97NGIsR/E8Y3e
   matrix:
     - nodejs_version: 6
 install:
@@ -20,3 +18,4 @@ shallow_clone: true
 clone_depth: 1
 test_script:
   - npm run dist
+build: off
