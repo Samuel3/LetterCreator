@@ -1,19 +1,22 @@
-# Test against the latest version of this Node.js version
+os: unstable
+cache:
+  - node_modules
 environment:
-  nodejs_version: "6"
-
-# Install scripts. (runs after repo cloning)
+  GH_TOKEN:
+      secure: fK836CflhDBugnKO8/6bb/97NGIsR/E8Y3e
+  matrix:
+    - nodejs_version: 6
 install:
-  # Get the latest stable version of Node.js or io.js
-  # - ps: Install-Product node $env:nodejs_version
-  # install modules
+  - ps: Install-Product node $env:nodejs_version
+  - set CI=true
+  - npm install -g npm@latest
+  - set PATH=%APPDATA%\npm;%PATH%
   - npm install
-  - npm run release
-
-# Post-install test scripts.
+matrix:
+  fast_finish: true
+build: off
+version: '{build}'
+shallow_clone: true
+clone_depth: 1
 test_script:
-  # Output useful info for debugging.
-  - node --version
-  - npm --version
-  # run tests
-  - npm test
+  - npm run dist
