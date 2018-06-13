@@ -6,7 +6,7 @@
   "author": "Samuel Mathes <samuel.mathes@gmail.com>",
   "main": "./app/index.js",
   "scripts": {
-    "postinstall": "install-app-deps",
+    "postinstall": "electron-builder install-app-deps",
     "start": "npm install && electron ./app",
     "pack": "build --dir",
     "prerelease": "node build/prebuild.js",
