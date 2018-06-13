@@ -12,7 +12,6 @@ install:
   - npm install
 matrix:
   fast_finish: true
-build: off
 version: '{build}'
 shallow_clone: true
 clone_depth: 1
