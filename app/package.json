@@ -1,6 +1,6 @@
 {
   "name": "LetterCreator",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "description": "A simple app to create business letters",
   "main": "main.js",
   "scripts": {

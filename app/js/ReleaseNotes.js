@@ -10,3 +10,5 @@ $(document).ready(function () {
         remote.getCurrentWindow().close();
     })
 });
+
+//# sourceURL=releaseNotes.js
