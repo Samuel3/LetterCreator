@@ -338,6 +338,8 @@ function getCurrentContent() {
         greeting: $("#greeting").html(),
         foldingMarks: $("#checkbox-1")[0].checked,
         date: $("#datepicker").val(),
+        time: new Date().toLocaleTimeString(),
+        printDate: new Date().toLocaleDateString(),
         "version": "1.0"
     }
 }
@@ -543,7 +545,7 @@ function setHistoryEntries() {
             "content": function () {
                 try {
                     var data = JSON.parse($(this).parent().data("content"));
-                    return data.sender
+                    return data.sender + "<br>" + data.time + "<br>" + data.printDate
                 } catch (e) {}
             }
         });
@@ -566,13 +568,13 @@ function setHistoryEntries() {
         });
         previewEntry.append(greeting).css("border", "2px solid " + colorize(entry.sender));
 
-        previewEntry.append($("<div>", {
-            "id": "delete", "class": "ui-icon-reset icon", "click": function () {
-                console.log("Delete")
-            }
-        }));
+        previewEntry.append($("<div>", {"id": "delete", "class": "ui-icon-reset icon"}));
 
-        _content.append(previewEntry)
+        _content.append(previewEntry);
+
+        _content.keydown(function (e) {
+            debugger
+        });
     });
 }
 
