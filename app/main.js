@@ -14,6 +14,7 @@ require("./js/MenuTemplate");
 app.commandLine.appendSwitch('remote-debugging-port', '9222');
 const {autoUpdater} = require("electron-updater");
 autoUpdater.logger = log;
+autoUpdater.autoInstallOnAppQuit = false;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
 
@@ -209,7 +210,7 @@ autoUpdater.on('update-not-available', (info) => {
 autoUpdater.on('error', (err) => {
 });
 autoUpdater.on('download-progress', (progressObj) => {
-    if (aboutWindow) {
+    if (typeof aboutWindow !== "undefined") {
         aboutWindow.webContents.send("progress", progressObj.percent)
     }
     log.info("download progress")
