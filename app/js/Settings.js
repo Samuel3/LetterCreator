@@ -4,11 +4,20 @@ const {remote, ipcRenderer} = require('electron');
 var datastore = require('data-store')('LetterCreator')
 
 $(document).ready(function () {
-    // Todo show message to restart if message changed and saved
+    document.title = i18n("menu.edit.settings");
+    $("#heading").html(i18n("menu.edit.settings"));
     var store = new Store();
+    var settings = store.get("settings");
     var _langHeader = $("<p>", {"id": "langHeader", "html": i18n("message.chooselang")});
     $("#content").append(_langHeader);
-    var _select = $("<select>", {"id": "lang"});
+    var _select = $("<select>", {"id": "lang"}).change(function (e) {
+        var _selected = $(this).val();
+        if (settings.lang !== _selected) {
+            showMessage(i18n("message.requiresrestart"))
+        } else {
+            $("#messageField").children().last().hide()
+        }
+    });
     var _de = $("<option>").html("Deutsch");
     var _en = $("<option>").html("English");
     _select.append(_de);
@@ -40,7 +49,7 @@ $(document).ready(function () {
     $("#abort").html(i18n("button.abort")).click(function () {
         remote.getCurrentWindow().close();
     });
-    var settings = store.get("settings");
+
     if (typeof settings !== "undefined") {
         setSettings(settings);
     }
