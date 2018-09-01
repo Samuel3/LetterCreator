@@ -186,3 +186,40 @@ select {
 .ui-icon-reset {
     background-image: url("../img/delete-empty.png");
 }
+
+#historyContent {
+    font-size: 12px;
+}
+
+.historyEntry {
+    float: left;
+    margin-top: 10px;
+    padding: 5px;
+    border-radius: 2px;
+    width: 97%;
+}
+
+.historyEntry:first-child {
+    margin-top: 50px;
+}
+
+#slider {
+    font-size: 20px;
+    margin: 15px;
+}
+
+#historyReceiver {
+    font-size: 0.75em;
+}
+
+.ui-selected #delete {
+    display: block;
+    background-image: url("../img/delete-white.png");
+    top: initial;
+    left: 0px;
+    margin-top: 10px;
+}
+
+#delete {
+    display:none
+}

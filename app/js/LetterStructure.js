@@ -3,7 +3,6 @@ const {ipcRenderer} = require('electron');
 const fs = require('fs');
 const version = require("../package.json").version;
 require("./i18n");
-const Svg = require("svg.js");
 var officegen = require('officegen');
 var async = require ( 'async' );
 
@@ -16,16 +15,19 @@ $(document).ready(function () {
     if (typeof history === "undefined") {
         history = {}
     }
-    console.log(history)
+
     $("#print-pdf").click(function () {
         ipcRenderer.send('print-to-pdf');
         showMessage(i18n("message.letterstored"), 10000);
         storeHistory();
+        setHistoryEntries();
     });
     $("#print").click(function () {
         ipcRenderer.send('print');
         showMessage(i18n("message.letterstored"), 10000);
         storeHistory();
+        setHistoryEntries();
+
     });
     var table = createAddressTable(getStoredData("address"));
     var date = new Date();
@@ -356,13 +358,7 @@ function setContent(content) {
 }
 
 function beforePrint() {
-    var history = getStoredData("history");
-    if (typeof history === "undefined") {
-        history = [getCurrentContent()];
-    } else{
-        history.unshift(getCurrentContent())
-    }
-    setStoredData("history", history);
+    storeHistory()
     try {
         createAddress.dialog("close");
     } catch (e) {
@@ -513,6 +509,73 @@ function storeHistory() {
     }
 }
 
+function setHistoryEntries() {
+    var _content = $("#historyContent");
+    _content.empty();
+    var entries = getStoredData("history");
+    $(entries).each(function (i, entry) {
+        let previewEntry = $("<div>", {"id": i, "class": "historyEntry"});
+
+        previewEntry.data("content", JSON.stringify(entry)).selectable({
+            selecting: function (e, ui) {
+                if ($(ui.selecting).attr("id") === "delete") {
+                    $(this).fadeOut(300, function () {
+                        var history = getStoredData("history") || [];
+                        var newHistory = []
+                        if (history.length > 1) {
+                            newHistory = history.splice(history.length - $(this).index() - 1, 1);
+                        }
+                        setStoredData("history", newHistory);
+                        $(this).remove();
+                        setHistoryEntries()
+                    });
+                    return
+                } else if ($(".ui-selected").is($(this))) {
+                    setContent(JSON.parse($(this).data("content")));
+                    $(".ui-selected").removeClass("ui-selected");
+                    $("#historyPreview").dialog("close")
+                }
+                $(".ui-selected").removeClass("ui-selected");
+                $(this).addClass("ui-selected");
+            }
+        }).tooltip({
+            "items":"div",
+            "content": function () {
+                try {
+                    var data = JSON.parse($(this).parent().data("content"));
+                    return data.sender
+                } catch (e) {}
+            }
+        });
+
+        var receiver = $("<div>", {
+            "id": "historyReceiver",
+            "html": entry.receiver + "<br>"
+        });
+        previewEntry.append(receiver);
+
+        var content = $("<div>", {
+            "id": "historySender",
+            "html": entry.content + "<br>"
+        });
+        previewEntry.append(content);
+
+        var greeting = $("<div>", {
+            "id": "historySender",
+            "html": entry.greeting
+        });
+        previewEntry.append(greeting).css("border", "2px solid " + colorize(entry.sender));
+
+        previewEntry.append($("<div>", {
+            "id": "delete", "class": "ui-icon-reset icon", "click": function () {
+                console.log("Delete")
+            }
+        }));
+
+        _content.append(previewEntry)
+    });
+}
+
 function activateHistoryButton() {
     var _historyPreview = $("<div>", {
         "id": "historyPreview",
@@ -530,54 +593,30 @@ function activateHistoryButton() {
         height: "350px",
         overflow: "auto"
     }).appendTo("#historyPreview");
-    const svg = SVG("historyContent").size("800", 800);
-    var entries = getStoredData("history");
-    if ($.isArray(entries)) {
-        $(entries).each(function (i, el) {
-            svg.text(replaceCRLFForForFirstTwoLines(el.receiver)).attr({"y": 70 * i, "font-size": "10px", "data": el.receiver + "", "data-full": JSON.stringify(el)});
-            svg.text(replaceCRLFForForFirstTwoLines(el.content.replace("<br>",""))).attr({"y": 70 * i + 30, "font-size": "10px", "data": el.content, "data-full": JSON.stringify(el)})
-        });
-        $(document).tooltip({
-            items: "text",
-            content: function () {
-                var element = $(this);
-                return element.attr("data");
-            }
-        });
-        $(document).find("text").dblclick(function () {
-            var el = $(this)
-            setContent(JSON.parse(el.attr("data-full")));
-            $("#historyPreview").dialog("close");
-        });
-    } else {
-        svg.text(i18n("message.nohistory"));
-    }
+
+    setHistoryEntries(_content);
+
+    _content.append($("<div>", {"id": "slider", "css": "clear: both"}).slider({
+        slide: function (event, ui) {
+            $("#historyContent").css("fontSize", 12 + (parseInt(ui.value) * 12 / 100))
+        }
+    }));
+
     $("#history").click(function () {
         _historyPreview.dialog("open");
     })
-}
-
-function replaceCRLFForForFirstTwoLines(text) {
-    var val = getFirstTwoLines(text, "<br>");
-    return val.replace(/<br>/g, "\n");
-}
-
-function getFirstTwoLines(text, pattern) {
-    text = text + "<br>"
-    var i = text.indexOf(pattern) + pattern.length;
-    if (-1 !== i) {
-        i = i + text.substr(i).indexOf(pattern);
-    }
-    if (-1 !== i) {
-        return text.substr(0, i);
-    }
-    return text;
 }
 
 function activateExportButton() {
     $("#exportWord").click(function () {
         ipcRenderer.send('export-dialog');
     })
+}
+
+function colorize(str) {
+    for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
+    color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
+    return '#' + Array(6 - color.length + 1).join('0') + color;
 }
 
 //# sourceURL=LetterStructure.js

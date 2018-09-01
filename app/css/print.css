@@ -94,10 +94,16 @@
     div#messageBox {
         display: none;
     }
-    div#historyPreview {
+    div#historyPreview, .ui-dialog-content .ui-widget-content {
         display: none;
     }
-    button.ui-button {
+    button.ui-button, .ui-dialog-titlebar .ui-corner-all .ui-widget-header .ui-helper-clearfix .ui-draggable-handle, .ui-dialog-title,
+    div.ui-resizable-handle,
+    #content > div.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front.ui-draggable.ui-resizable{
         display: none;
+    }
+
+    body > div:nth-child(16) {
+        display: none
     }
 }
