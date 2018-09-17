@@ -213,13 +213,37 @@ select {
 }
 
 .ui-selected #delete {
-    display: block;
+    display: inline;
     background-image: url("../img/delete-white.png");
+    top: initial;
+    left: 50px;
+    margin-top: 10px;
+}
+
+#delete, export, print, print-pdf {
+    display:none
+}
+
+.ui-selected #export {
+    display: inline;
+    background-image: url("../img/file-word-white.png");
+    top: initial;
+    left: 40px;
+    margin-top: 10px;
+}
+
+.ui-selected #print {
+    display: block;
+    background-image: url("../img/printer-white.png");
     top: initial;
     left: 0px;
     margin-top: 10px;
 }
 
-#delete {
-    display:none
+.ui-selected #print-pdf {
+    display: inline;
+    background-image: url("../img/file-pdf-white.png");
+    top: initial;
+    left: 30px;
+    margin-top: 10px;
 }

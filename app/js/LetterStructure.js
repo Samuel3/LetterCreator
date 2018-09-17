@@ -5,6 +5,7 @@ const version = require("../package.json").version;
 require("./i18n");
 var officegen = require('officegen');
 var async = require ( 'async' );
+var exportSelected = false;
 
 $(document).ready(function () {
     store = require('data-store')('LetterCreator');
@@ -338,6 +339,8 @@ function getCurrentContent() {
         greeting: $("#greeting").html(),
         foldingMarks: $("#checkbox-1")[0].checked,
         date: $("#datepicker").val(),
+        time: new Date().toLocaleTimeString(),
+        printDate: new Date().toLocaleDateString(),
         "version": "1.0"
     }
 }
@@ -374,7 +377,13 @@ ipcRenderer.on('saved-file', (event, path) => {
 ipcRenderer.on('exported-file', (event, path) => {
     if (path) {
         var docx = officegen ( 'docx' );
-        var _content = getCurrentContent();
+        var _content;
+        if (!exportSelected) {
+            _content = getCurrentContent();
+        } else {
+            _content = JSON.parse($("#historyPreview").find(".ui-selected").data("content"));
+            exportSelected = false;
+        }
         var _receivers = _content.receiver.split("<br>");
         for (var i = 0; i < 3; i++) {
             docx.createP();
@@ -501,48 +510,55 @@ function storeHistory() {
     if (typeof history === "undefined") {
         setStoredData("history", [getCurrentContent()]);
     } else {
-        if (JSON.stringify(currentContent) !== JSON.stringify(history[0])) {
+        if (!compareTwoHistories(currentContent, history[0])) {
             history.unshift(currentContent);
             setStoredData("history", history);
         }
     }
 }
 
+function compareTwoHistories(history1, history2) {
+    for (var key in history1){
+        if (key !== "printDate" && key !== "time" && key !== "date" && key !== "foldingMarks" && history1[key] !== history2[key]) {
+            return false
+        }
+    }
+return true
+}
+
 function setHistoryEntries() {
-    var _content = $("#historyContent");
+    var _content = $("#historyContent").selectable({
+        start: function (event, ui) {
+            var _el = $(event.originalEvent.target).parent()
+            if (_el.prevObject.attr("id") === "delete") {
+                removeElementFromHistory(_el)
+            } else if (_el.prevObject.attr("id") === "export") {
+                exportSelected = true;
+                ipcRenderer.send('export-dialog');
+            } else if (_el.prevObject.attr("id") === "print") {
+                setContent(JSON.parse(_el.data("content")))
+                ipcRenderer.send('print');
+            } else if (_el.prevObject.attr("id") === "print-pdf") {
+                setContent(JSON.parse(_el.data("content")))
+                ipcRenderer.send('print-to-pdf');
+            } else if (_el.hasClass("ui-selected")) {
+                $("#historyPreview").dialog("close");
+                setContent(JSON.parse(_el.data("content")));
+            }
+        }
+    });
     _content.empty();
+
     var entries = getStoredData("history");
     $(entries).each(function (i, entry) {
         let previewEntry = $("<div>", {"id": i, "class": "historyEntry"});
 
-        previewEntry.data("content", JSON.stringify(entry)).selectable({
-            selecting: function (e, ui) {
-                if ($(ui.selecting).attr("id") === "delete") {
-                    $(this).fadeOut(300, function () {
-                        var history = getStoredData("history") || [];
-                        var newHistory = []
-                        if (history.length > 1) {
-                            newHistory = history.splice(history.length - $(this).index() - 1, 1);
-                        }
-                        setStoredData("history", newHistory);
-                        $(this).remove();
-                        setHistoryEntries()
-                    });
-                    return
-                } else if ($(".ui-selected").is($(this))) {
-                    setContent(JSON.parse($(this).data("content")));
-                    $(".ui-selected").removeClass("ui-selected");
-                    $("#historyPreview").dialog("close")
-                }
-                $(".ui-selected").removeClass("ui-selected");
-                $(this).addClass("ui-selected");
-            }
-        }).tooltip({
+        previewEntry.data("content", JSON.stringify(entry)).tooltip({
             "items":"div",
             "content": function () {
                 try {
                     var data = JSON.parse($(this).parent().data("content"));
-                    return data.sender
+                    return data.sender + "<br>" + data.time + "<br>" + data.printDate
                 } catch (e) {}
             }
         });
@@ -565,14 +581,45 @@ function setHistoryEntries() {
         });
         previewEntry.append(greeting).css("border", "2px solid " + colorize(entry.sender));
 
-        previewEntry.append($("<div>", {
-            "id": "delete", "class": "ui-icon-reset icon", "click": function () {
-                console.log("Delete")
-            }
-        }));
+        previewEntry.append($("<div>", {"id": "print", "class": " icon"}));
+        previewEntry.append($("<div>", {"id": "print-pdf", "class": " icon"}));
+        previewEntry.append($("<div>", {"id": "export", "class": " icon"}));
+        previewEntry.append($("<div>", {"id": "delete", "class": "ui-icon-reset icon"}));
 
-        _content.append(previewEntry)
+        _content.append(previewEntry);
+
+        _content.keydown(function (e) {
+            e.stopImmediatePropagation()
+            var _selectedEl = $("#historyContent").find(".ui-selected");
+            if (_selectedEl.length > 0) {
+                if (e.key === "ArrowDown" && !(_selectedEl.next().attr("id") === "slider")) {
+                    _selectedEl.removeClass("ui-selected");
+                    _selectedEl.next().addClass("ui-selected");
+                } else if (e.key === "ArrowUp" && !(_selectedEl.index() === 0)) {
+                    _selectedEl.removeClass("ui-selected");
+                    _selectedEl.prev().addClass("ui-selected");
+                } else if (e.key === "Enter") {
+                    $("#historyPreview").dialog("close");
+                    setContent(JSON.parse($(_selectedEl).data("content")))
+                } else if (e.key === "Backspace" || e.key === "Delete") {
+                    removeElementFromHistory(_selectedEl)
+                }
+            }
+        });
     });
+}
+
+function removeElementFromHistory(_el) {
+    var _index = _el.index();
+    var history = getStoredData("history")
+    var _newHistory = [];
+    for (var i in history){
+        if (i != _index) {
+            _newHistory.push(history[i])
+        }
+    }
+    setStoredData("history", _newHistory);
+    _el.remove();
 }
 
 function activateHistoryButton() {

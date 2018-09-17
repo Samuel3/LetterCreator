@@ -51,7 +51,7 @@
   "message.noreceiver": "Doppelklicken um Empfänger hinzuzufügen",
   "letter.subject": "Betreff: Ihr Schreiben vom",
   "letter.greeting": "Grüße<br><br>Absender",
-  "letter.place":"Ort, den",
+  "letter.place":"Ort, den ",
   "letter.content": "Sehr geehrter Herr <br><br>Lorem Ipsum",
   "button.ok": "OK",
   "button.abort": "Abbrechen",
