@@ -461,8 +461,7 @@ ipcRenderer.on("message", function (event, content) {
 
 
 ipcRenderer.on("updateDownloaded", (event, info) => {
-    var message = $("<div>", {"class": "message", html: i18n("message.downloadcomplete"), "id": "updateReady"});
-
+    var message = $("<div>", {"class": "message", html: i18n("message.downloadcomplete"), "id": "updateReady"}).css("pointer-events", "all");
     var quitAndInstall = $("<a>", {
         "href": "#",
         "text": i18n("message.quitandinstall"),
@@ -497,7 +496,7 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
     }).click(function () {
         $("#updateReady").hide()
     });
-    message.append(quitAndInstall).append(" ").append(installAfterClose).append(" ").append(nextRemember);
+    message.append("<br>").append(quitAndInstall).append("<br>").append(installAfterClose).append("<br>").append(nextRemember);
     $("#messageBox").append(message);
 });
 

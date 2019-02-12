@@ -14,6 +14,7 @@ require("./js/MenuTemplate");
 app.commandLine.appendSwitch('remote-debugging-port', '9222');
 const {autoUpdater} = require("electron-updater");
 autoUpdater.logger = log;
+autoUpdater.autoInstallOnAppQuit = false;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
 
@@ -36,8 +37,9 @@ ipcMain.on('print-to-pdf', function (event) {
 ipcMain.on('print', function (event) {
     const win = BrowserWindow.fromWebContents(event.sender)
     win.webContents.print({pageSize: "A4"}, function (error, data) {
-        if (error) {
-            throw error
+        if (error){
+            console.error(error)
+            throw error;
         }
     })
 });
@@ -210,7 +212,7 @@ autoUpdater.on('update-not-available', (info) => {
 autoUpdater.on('error', (err) => {
 });
 autoUpdater.on('download-progress', (progressObj) => {
-    if (aboutWindow) {
+    if (typeof aboutWindow !== "undefined") {
         aboutWindow.webContents.send("progress", progressObj.percent)
     }
     log.info("download progress")
