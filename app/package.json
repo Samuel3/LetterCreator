@@ -1,6 +1,6 @@
 {
   "name": "LetterCreator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A simple app to create business letters",
   "main": "main.js",
   "scripts": {
@@ -8,17 +8,17 @@
   },
   "author": "Samuel Mathes",
   "devDependencies": {
-    "electron": "^1.8.7"
+    "electron": "^3.0.7"
   },
   "dependencies": {
     "data-store": "^1.0.0",
     "electron-log": "^2.2.17",
     "electron-store": "^1.3.0",
-    "electron-updater": "^2.23.3",
+    "electron-updater": "^4.0.0",
     "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1",
-    "officegen": "^0.4.5",
+    "officegen": "^0.4.7",
     "os-locale": "^2.1.0",
-    "svg.js": "^2.6.5"
+    "svg.js": "^2.6.6"
   }
 }

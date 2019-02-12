@@ -1,6 +1,6 @@
 {
   "name": "LetterCreator",
-  "version": "0.5.0",
+  "version": "1.1.0",
   "license": "MIT",
   "description": "A simple app to create business letters",
   "author": "Samuel Mathes <samuel.mathes@gmail.com>",
@@ -50,13 +50,13 @@
     }
   },
   "dependencies": {
-    "electron-log": "^2.2.14",
-    "electron-updater": "^2.21.4",
-    "npm": "^6.0.1"
+    "electron-log": "^2.2.17",
+    "electron-updater": "^4.0.0",
+    "npm": "^6.7.0"
   },
   "devDependencies": {
-    "electron": "latest",
-    "electron-builder": "latest",
+    "electron": "^4.0.0",
+    "electron-builder": "^20.38.5",
     "mocha": "^5.0.5",
     "spectron": "^3.8.0"
   }
