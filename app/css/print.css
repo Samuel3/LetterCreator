@@ -87,6 +87,7 @@
         border-bottom: 0px;
         border-top: 0.5px;
         border-style: dotted;
+        border-width: 0.5px;
     }
     div#footer {
         display: none;

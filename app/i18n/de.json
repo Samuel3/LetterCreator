@@ -49,6 +49,7 @@
   "message.installafterclose": "Beim Schließen installieren",
   "message.remembermelater": "Später erinnern",
   "message.noreceiver": "Doppelklicken um Empfänger hinzuzufügen",
+  "message.intro": "",
   "letter.subject": "Betreff: Ihr Schreiben vom",
   "letter.greeting": "Grüße<br><br>Absender",
   "letter.place":"Ort, den ",
@@ -57,5 +58,6 @@
   "button.abort": "Abbrechen",
   "button.deleteAll": "Historie löschen?",
   "button.delete": "Löschen",
-  "title.historypreview":"Gespeicherte Briefe"
+  "title.historypreview":"Gespeicherte Briefe",
+  "title.intro": "Einführung"
 }

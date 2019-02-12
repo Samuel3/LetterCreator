@@ -57,5 +57,6 @@
   "button.abort": "Cancel",
   "button.deleteAll": "Delete History?",
   "button.delete": "Delete",
-  "title.historypreview": "Stored letters"
+  "title.historypreview": "Stored letters",
+  "title.intro": "Introduction"
 }

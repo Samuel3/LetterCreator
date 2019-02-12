@@ -36,7 +36,9 @@ ipcMain.on('print-to-pdf', function (event) {
 ipcMain.on('print', function (event) {
     const win = BrowserWindow.fromWebContents(event.sender)
     win.webContents.print({pageSize: "A4"}, function (error, data) {
-        if (error) throw error
+        if (error) {
+            throw error
+        }
     })
 });
 
