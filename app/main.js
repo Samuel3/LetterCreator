@@ -52,6 +52,10 @@ ipcMain.on("message", function (event, content) {
     mainWindow.webContents.send("message", content);
 });
 
+ipcMain.on("dropbox-login", function (event, url) {
+    shell.openExternal(url);
+});
+
 let mainWindow;
 
 function createWindow () {

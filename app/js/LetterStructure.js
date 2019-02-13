@@ -6,6 +6,7 @@ require("./i18n");
 var officegen = require('officegen');
 var async = require ( 'async' );
 var exportSelected = false;
+require("./dropbox");
 
 $(document).ready(function () {
     store = require('data-store')('LetterCreator');
