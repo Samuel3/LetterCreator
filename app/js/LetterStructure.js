@@ -3,6 +3,9 @@ const fs = require('fs');
 const version = require("../package.json").version;
 require("./i18n");
 const dataStore = require("./Store");
+var officegen = require('officegen');
+var async = require ( 'async' );
+var exportSelected = false;
 
 var store = new dataStore(function () {
     $(document).ready(function () {
@@ -33,16 +36,10 @@ var store = new dataStore(function () {
     })
 });
 
-
-var officegen = require('officegen');
-var async = require ( 'async' );
-var exportSelected = false;
-
 if (store.isDropboxKeyNeeded()) {
-    var DropboxServer = require("./dropbox");
+    var DropboxServer = require("./RequestDropboxKey");
     new DropboxServer(store.setDropboxKey)
 }
-
 
 $(document).ready(function initialize () {
     var history = store.get("history");
@@ -83,7 +80,7 @@ $(document).ready(function initialize () {
     }).contextmenu(function (e) {
         $("#inputSender").val($("#sender").val());
         $("#formSender").dialog("open");
-    })
+    });
 	if (typeof store.get("sender") === "undefined") {
 		store.set("sender", []);
 	}
@@ -172,11 +169,13 @@ $(document).ready(function initialize () {
     }
     _buttons[_delete] = function () {
         var _delVal = $("#inputSender").val();
-        $("#sender > option").filter(function(i, el){return $(el).val() === _delVal}).remove();
+        $("#sender > option").filter(function (i, el) {
+            return $(el).val() === _delVal
+        }).remove();
         store.set("sender", getSenderDataFromDropdown());
         $(this).dialog("close");
         $("#inputSender").val("");
-    }
+    };
      _buttons["OK"] = function () {
          var option = $("<option>").html($("#inputSender").val());
          $("select option:last").before(option);
