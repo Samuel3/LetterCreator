@@ -1,12 +1,14 @@
 require("./i18n");
-var Store = require("electron-store");
+const log = require('electron-log');
 const {remote, ipcRenderer} = require('electron');
-var datastore = require('data-store')('LetterCreator')
+const dataStore = require("./Store");
+const store = new dataStore(function () {
+});
+const fs = require('fs');
 
 $(document).ready(function () {
     document.title = i18n("menu.edit.settings");
     $("#heading").html(i18n("menu.edit.settings"));
-    var store = new Store();
     var settings = store.get("settings");
     var _langHeader = $("<p>", {"id": "langHeader", "html": i18n("message.chooselang")});
     $("#content").append(_langHeader);
@@ -26,17 +28,39 @@ $(document).ready(function () {
 
     $("#content").append(_select);
 
-    var _historySizeHeader = $("<p>", {"id": "historySizeHeader", "html":i18n("message.historysize")});
-    var _historySize = $("<input>", {"id": "historySize", "val": 20});
+    var _historySizeHeader = $("<p>", {"id": "historySizeHeader", "html": i18n("message.historysize")});
+    var _historySize = $("<input>", {"id": "historySize", "val": 20, "type": "number", "min":1});
     $("#content").append(_historySizeHeader).append(_historySize);
-    $("#content").append($("<p>").html("&nbsp;"))
+    $("#content").append($("<p>").html("&nbsp;"));
     $("#content").append($("<button>", {
-        "id": "deleteAll", "html": i18n("button.deleteAll"), click: function () {
-            datastore.set("history", []);
-            datastore.save();
+        "id": "deleteAll",
+        "html": i18n("button.deleteAll"),
+        click: function () {
+            log.warn("Deleting whole history")
+            store.deleteHistory();
             showMessage(i18n("message.historydeleted"));
         }
     }));
+
+    $("#content").append($("<p>").html("&nbsp;"));
+    $("#content").append($("<button>", {
+        "id": "exportAll",
+        "html": i18n("button.exportall"),
+        click: function () {
+            ipcRenderer.send("export-all-dialog");
+            console.log("Export all")
+        }
+    }));
+
+    $("#content").append($("<p>").html(i18n("message.usedropbox")));
+    const useDropbox = store.get("useDropbox") || true;
+    $("#content").append($("<input>", {
+        "id": "useDropbox",
+        "type":"checkbox",
+        "checked": useDropbox
+    }));
+
+
     $("#ok").html(i18n("button.ok")).click(function (e) {
         e.preventDefault();
         ipcRenderer.send("message", i18n("message.stored"));
@@ -53,7 +77,7 @@ $(document).ready(function () {
     if (typeof settings !== "undefined") {
         setSettings(settings);
     }
-$("#content").append($("<p>").html("&nbsp;"))
+    $("#content").append($("<p>").html("&nbsp;"))
 });
 
 function getSettings() {
@@ -71,5 +95,11 @@ function setSettings(settings) {
 function showMessage(message) {
     $("#messageField").append($("<div>", {"html": message}).show().delay(5000).fadeOut());
 }
+
+ipcRenderer.on("exported-filecollection", (event, path) => {
+    log.info(`Exporting history to: ${path}`)
+    fs.writeFileSync(path, JSON.stringify(store.get("history")))
+});
+
 
 //# sourceURL=Settings.js

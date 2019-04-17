@@ -1,16 +1,51 @@
-var store;
 const {ipcRenderer} = require('electron');
 const fs = require('fs');
 const version = require("../package.json").version;
 require("./i18n");
+const dataStore = require("./Store");
+
+var store = new dataStore(function () {
+    $(document).ready(function () {
+        // Update
+        setHistoryEntries()
+
+        var addressData = store.get("address")
+        var _body = $(document).find("tbody")
+        _body.empty()
+        if (typeof addressData !== "undefined") {
+            for (addressEntry of addressData) {
+                var tr = $("<tr>");
+                for (addressEntryField of addressEntry) {
+                    createTableData(tr, addressEntryField);
+                }
+                createDeleteButton(tr);
+                _body.append(tr);
+            }
+        }
+
+        var _select = $("#sender").empty()
+
+        for (data of store.get("sender")){
+            var _option = $("<option>").html(data);
+            _select.append(_option);
+        };
+        _select.append($("<option>", {"html": i18n("message.addsender")}));
+    })
+});
+
+
 var officegen = require('officegen');
 var async = require ( 'async' );
 var exportSelected = false;
-require("./dropbox");
 
-$(document).ready(function () {
-    store = require('data-store')('LetterCreator');
-    var history = getStoredData("history");
+if (store.isDropboxKeyNeeded()) {
+    var DropboxServer = require("./dropbox");
+    new DropboxServer(store.setDropboxKey)
+}
+
+
+$(document).ready(function initialize () {
+    var history = store.get("history");
     if ($.isArray(history)) {
         history = history [0];
     }
@@ -21,17 +56,17 @@ $(document).ready(function () {
     $("#print-pdf").click(function () {
         ipcRenderer.send('print-to-pdf');
         showMessage(i18n("message.letterstored"), 10000);
-        storeHistory();
+        store.storeHistory(getCurrentContent());
         setHistoryEntries();
     });
     $("#print").click(function () {
         ipcRenderer.send('print');
         showMessage(i18n("message.letterstored"), 10000);
-        storeHistory();
+        store.storeHistory(getCurrentContent());
         setHistoryEntries();
 
     });
-    var table = createAddressTable(getStoredData("address"));
+    var table = createAddressTable(store.get("address"));
     var date = new Date();
     var _fieldset = $("<fieldset>");
     _fieldset.click(function (e) {
@@ -49,10 +84,10 @@ $(document).ready(function () {
         $("#inputSender").val($("#sender").val());
         $("#formSender").dialog("open");
     })
-	if (typeof getStoredData("sender") === "undefined") {
-		setStoredData("sender", []);
+	if (typeof store.get("sender") === "undefined") {
+		store.set("sender", []);
 	}
-    for (data of getStoredData("sender")){
+    for (data of store.get("sender")){
         var _option = $("<option>").html(data);
         _select.append(_option);
     };
@@ -72,6 +107,12 @@ $(document).ready(function () {
     var _text = $("<div>", {"id": "text", "contenteditable": true});
     var content = history.content ? history.content : i18n("letter.content");
     _text.html(content);
+    _text.keyup(function (e) {
+        debugger
+        var index = window.getSelection().getRangeAt(0).startOffset
+        var nextChar = e.target.innerHTML.charAt(index)
+        console.log(nextChar)
+    });
     var _greeting = $("<div>", {"id": "greeting", "contenteditable": true}).html(history.greeting ? history.greeting : i18n("letter.greeting"));
     var hr1 = $("<div>", {"id": "hr1", "class": "falzmarken"});
     var hr2 = $("<div>", {"id": "hr2", "class": "falzmarken"});
@@ -111,7 +152,7 @@ $(document).ready(function () {
                 "OK": function () {
                     $(this).dialog("close");
                     $("#addressTable").find(".ui-selected > td:eq(0) > input").trigger("dblclick");
-                    setStoredData("address", getAddressDataFromTable())
+                    store.set("address", getAddressDataFromTable())
                 }
             }
         });
@@ -132,14 +173,14 @@ $(document).ready(function () {
     _buttons[_delete] = function () {
         var _delVal = $("#inputSender").val();
         $("#sender > option").filter(function(i, el){return $(el).val() === _delVal}).remove();
-        setStoredData("sender", getSenderDataFromDropdown());
+        store.set("sender", getSenderDataFromDropdown());
         $(this).dialog("close");
         $("#inputSender").val("");
     }
      _buttons["OK"] = function () {
          var option = $("<option>").html($("#inputSender").val());
          $("select option:last").before(option);
-         setStoredData("sender", getSenderDataFromDropdown());
+         store.set("sender", getSenderDataFromDropdown());
          $("#sender").val($("#inputSender").val());
          $("#inputSender").val("");
          $(this).dialog("close");
@@ -183,7 +224,7 @@ $(document).ready(function () {
     };
     activateHistoryButton();
     activateExportButton();
-});
+})
 
 function createAddressTable(addressData) {
     var _table = $("<table>", {"id": "addressTable", "class":"ui-widget ui-widget-content"});
@@ -211,8 +252,6 @@ function createAddressTable(addressData) {
             createDeleteButton(tr);
             _body.append(tr);
         }
-    } else{
-
     }
 
     _table.append(_header);
@@ -233,15 +272,6 @@ function createAddressTable(addressData) {
         _table.append(tr);
     }));
     return _table;
-}
-
-function getStoredData (key) {
-    return store.get(key);
-}
-
-function setStoredData (key, value) {
-    store.set(key, value);
-    store.save();
 }
 
 function getAddress(tableRow) {
@@ -289,7 +319,7 @@ function createTableData(parent, content) {
         var addressField = getAddress($(e.target).parent().parent());
         $("#receiver").html(addressField.join("<br>"));
         $("#createAddress").dialog("close");
-        setStoredData("address", getAddressDataFromTable());
+        store.set("address", getAddressDataFromTable());
     }).keypress(function (e) {
         if (e.keyCode === $.ui.keyCode.ENTER) {
             $(this).trigger("dblclick");
@@ -362,7 +392,7 @@ function setContent(content) {
 }
 
 function beforePrint() {
-    storeHistory()
+    store.storeHistory(getCurrentContent());
     try {
         createAddress.dialog("close");
     } catch (e) {
@@ -448,7 +478,7 @@ ipcRenderer.on('file-open', (event, path) => {
 });
 
 ipcRenderer.on("closed", () => {
-    storeHistory();
+    store.storeHistory(getCurrentContent());
 });
 
 ipcRenderer.on('wrote-pdf', function (event, path) {
@@ -505,28 +535,6 @@ function showMessage(message, delay) {
     $("#messageBox").append($("<div>", {"class":"message", html: message}).delay(delay).hide({"duration": "2000", easing: 'easeOutBounce'}).effect("shake"))
 }
 
-function storeHistory() {
-    var currentContent = getCurrentContent();
-    var history = getStoredData("history");
-    if (typeof history === "undefined") {
-        setStoredData("history", [getCurrentContent()]);
-    } else {
-        if (!compareTwoHistories(currentContent, history[0])) {
-            history.unshift(currentContent);
-            setStoredData("history", history);
-        }
-    }
-}
-
-function compareTwoHistories(history1, history2) {
-    for (var key in history1){
-        if (key !== "printDate" && key !== "time" && key !== "date" && key !== "foldingMarks" && history1[key] !== history2[key]) {
-            return false
-        }
-    }
-return true
-}
-
 function setHistoryEntries() {
     var _content = $("#historyContent").selectable({
         start: function (event, ui) {
@@ -550,7 +558,7 @@ function setHistoryEntries() {
     });
     _content.empty();
 
-    var entries = getStoredData("history");
+    var entries = store.get("history");
     $(entries).each(function (i, entry) {
         let previewEntry = $("<div>", {"id": i, "class": "historyEntry"});
 
@@ -612,14 +620,14 @@ function setHistoryEntries() {
 
 function removeElementFromHistory(_el) {
     var _index = _el.index();
-    var history = getStoredData("history")
+    var history = store.get("history")
     var _newHistory = [];
     for (var i in history){
         if (i != _index) {
             _newHistory.push(history[i])
         }
     }
-    setStoredData("history", _newHistory);
+    store.set("history", _newHistory);
     _el.remove();
 }
 

@@ -49,7 +49,9 @@
   "message.installafterclose": "Beim Schließen installieren",
   "message.remembermelater": "Später erinnern",
   "message.noreceiver": "Doppelklicken um Empfänger hinzuzufügen",
+  "message.dropboxfailed": "Dropbox reagiert nicht, starte ohne lokalen Sync",
   "message.intro": "",
+  "message.usedropbox": "Soll Dropbox verwendet werden?",
   "letter.subject": "Betreff: Ihr Schreiben vom",
   "letter.greeting": "Grüße<br><br>Absender",
   "letter.place":"Ort, den ",
@@ -58,6 +60,7 @@
   "button.abort": "Abbrechen",
   "button.deleteAll": "Historie löschen?",
   "button.delete": "Löschen",
+  "button.exportall": "Alle Briefe exportieren",
   "title.historypreview":"Gespeicherte Briefe",
   "title.intro": "Einführung"
 }

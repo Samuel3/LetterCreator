@@ -45,10 +45,12 @@
   "message.downloadcomplete": "Successfully downloaded next release",
   "message.nextreleaseavailable": "Next Release available",
   "message.nohistory": "Keine Historie verfügbar",
-  "message.noreceiver": "Doppelklicken um Adresse hinzuzufügen",
+  "message.noreceiver": "Double click to add address",
   "message.quitandinstall": "Close and install",
   "message.installafterclose": "Install after exit",
   "message.remembermelater": "Remember me later",
+  "message.dropboxfailed": "Dropbox does not react, start without local Sync",
+  "message.usedropbox": "Should Dropbox be used?",
   "letter.subject": "Subject: Your letter from: ",
   "letter.greeting": "Best Regards<br><br>Sender",
   "letter.place": "Place, ",
@@ -57,6 +59,7 @@
   "button.abort": "Cancel",
   "button.deleteAll": "Delete History?",
   "button.delete": "Delete",
+  "button.exportall": "Export all letters",
   "title.historypreview": "Stored letters",
   "title.intro": "Introduction"
 }

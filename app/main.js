@@ -161,9 +161,20 @@ function exportDialog() {
     })
 }
 
-// code. You can also put them in separate files and require them here.
 ipcMain.on('export-dialog', () => {
     exportDialog();
+});
+
+ipcMain.on("export-all-dialog", () => {
+    const options = {
+        title: 'Export all letters',
+        filters: [
+            {name: 'Letterset', extensions: ['lets']}
+        ]
+    };
+    dialog.showSaveDialog(options, (filename) => {
+        settingsWindow.send('exported-filecollection', filename)
+    })
 });
 
 function loadDialog() {
