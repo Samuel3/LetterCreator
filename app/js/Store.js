@@ -7,7 +7,8 @@ var Store = function (callback) {
     this.store = require('data-store')('LetterCreator');
     var dropboxUsed = this.useDropbox()
     if (dropboxUsed) {
-        this.dropboxKey = this.store.get("settings").dropboxKey;
+        var settings = this.store.get("settings") || {}
+        this.dropboxKey = settings.dropboxKey;
         this.box = new Dropbox();
         this.box.setClientId("av5lekkcrbbfbgn")
         this.box.setAccessToken(this.dropboxKey)
@@ -71,7 +72,7 @@ Store.prototype.setDropboxKey = function (key) {
     this.store = require('data-store')('LetterCreator');
     log.info("Dropbox Key: " + key);
     this.dropboxKey = key;
-    const settings = this.store.get("settings");
+    const settings = this.store.get("settings") || {};
     settings.dropboxKey = key
     this.store.set("settings", settings)
 };
@@ -96,6 +97,7 @@ Store.prototype.isDropboxKeyNeeded = function () {
 Store.prototype.deleteHistory = function () {
     this.store.set("history", []);
     this.store.save();
+    this.storeCloudData()
 };
 
 Store.prototype.useDropbox = function () {

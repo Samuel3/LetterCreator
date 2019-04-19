@@ -55,6 +55,7 @@
   "message.deletedropboxkey":"Delete Dropbox key",
   "message.letterheading": "Letters:",
   "message.dropboxheading": "Dropbox:",
+  "message.deleteallconfirmation": "Are you sure to delete all stored letters?",
   "letter.subject": "Subject: Your letter from: ",
   "letter.greeting": "Best Regards<br><br>Sender",
   "letter.place": "Place, ",
@@ -65,5 +66,7 @@
   "button.delete": "Delete",
   "button.exportall": "Export all letters",
   "title.historypreview": "Stored letters",
-  "title.intro": "Introduction"
+  "title.intro": "Introduction",
+  "title.confirmation": "Confirmation",
+  "title.size": "Preview size"
 }

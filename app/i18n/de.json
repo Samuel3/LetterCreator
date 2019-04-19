@@ -56,6 +56,7 @@
   "message.deletedropboxkey":"Dropbox Key löschen",
   "message.letterheading": "Briefe:",
   "message.dropboxheading": "Dropbox:",
+  "message.deleteallconfirmation": "Sind Sie sicher, dass Sie alle gespeicherten Briefe löschen wollen?",
   "letter.subject": "Betreff: Ihr Schreiben vom",
   "letter.greeting": "Grüße<br><br>Absender",
   "letter.place":"Ort, den ",
@@ -66,5 +67,7 @@
   "button.delete": "Löschen",
   "button.exportall": "Alle Briefe exportieren",
   "title.historypreview":"Gespeicherte Briefe",
-  "title.intro": "Einführung"
+  "title.intro": "Einführung",
+  "title.confirmation": "Bestätigung",
+  "title.size": "Vorschaugröße"
 }

@@ -32,13 +32,32 @@ $(document).ready(function () {
     var _historySize = $("<input>", {"id": "historySize", "val": 20, "type": "number", "min":1});
     content.append(_historySizeHeader).append(_historySize);
     content.append($("<br>")).append($("<br>"));
+    let confirmationDialog = $("<div>", {
+        "id": "confirmationDialog",
+        "html": $("<p>", {"html":i18n("message.deleteallconfirmation")}),
+        "title": i18n("title.confirmation"),
+    });
+    content.append(confirmationDialog);
+    confirmationDialog.dialog({
+        autoOpen: false,
+        buttons: {
+            "OK": function () {
+                $( this ).dialog( "close" )
+                log.warn("Deleting all letters.");
+                showMessage(i18n("message.historydeleted"));x
+                store.deleteHistory()
+            },
+            "Cancel": function () {
+                $( this ).dialog( "close" )
+            }
+        }
+    })
     content.append($("<button>", {
         "id": "deleteAll",
         "html": i18n("button.deleteAll"),
         click: function () {
             log.warn("Deleting whole history")
-            store.deleteHistory();
-            showMessage(i18n("message.historydeleted"));
+            $("#confirmationDialog").dialog("open")
         }
     }));
 
@@ -53,7 +72,7 @@ $(document).ready(function () {
     }));
 
     content.append($("<h2>", {html: i18n("message.dropboxheading")}))
-    const useDropbox = store.useDropbox()
+    const useDropbox = store.useDropbox();
     content.append($("<input>", {
         "id": "useDropbox",
         "type":"checkbox",

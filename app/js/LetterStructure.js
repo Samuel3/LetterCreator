@@ -50,6 +50,9 @@ $(document).ready(function initialize () {
         history = {}
     }
 
+    let startedOnce = store.get("startedOnce");
+
+
     $("#print-pdf").click(function () {
         ipcRenderer.send('print-to-pdf');
         showMessage(i18n("message.letterstored"), 10000);
@@ -535,7 +538,34 @@ function showMessage(message, delay) {
 }
 
 function setHistoryEntries() {
-    var _content = $("#historyContent").selectable({
+    var _content = $("#historyContent").scroll(function () {
+        var scrollTop = $(this).scrollTop()
+        $("#sliderContainer").toggleClass("shadow", scrollTop >= 50)
+    });
+    _content.empty();
+    var sliderDiv = $("<div>", {
+        "id": "sliderContainer"
+    });
+    sliderDiv.append($("<input>", {
+        "id": "slider",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "value": 0,
+        "name": "historySize"
+    }).on("change input", function (e) {
+        $("#previewContainer").css("fontSize", 12 + ($(this).val() * 12 / 100))
+        e.preventDefault()
+    }));
+    sliderDiv.append($("<label>", {
+        "id": "sliderLabel",
+        "for": "historySize",
+        "html": i18n("title.size")
+    }))
+    _content.append(sliderDiv);
+    var previewContainer = $("<div>", {
+        "id": "previewContainer",
+    }).selectable({
         start: function (event, ui) {
             var _el = $(event.originalEvent.target).parent()
             if (_el.prevObject.attr("id") === "delete") {
@@ -555,7 +585,7 @@ function setHistoryEntries() {
             }
         }
     });
-    _content.empty();
+    _content.append(previewContainer)
 
     var entries = store.get("history");
     $(entries).each(function (i, entry) {
@@ -587,18 +617,18 @@ function setHistoryEntries() {
             "id": "historySender",
             "html": entry.greeting
         });
-        previewEntry.append(greeting).css("border", "2px solid " + colorize(entry.sender));
+        previewEntry.append(greeting).css("border", "2px solid " + colorize(entry.receiver));
 
         previewEntry.append($("<div>", {"id": "print", "class": " icon"}));
         previewEntry.append($("<div>", {"id": "print-pdf", "class": " icon"}));
         previewEntry.append($("<div>", {"id": "export", "class": " icon"}));
         previewEntry.append($("<div>", {"id": "delete", "class": "ui-icon-reset icon"}));
 
-        _content.append(previewEntry);
+        previewContainer.append(previewEntry);
 
         _content.keydown(function (e) {
             e.stopImmediatePropagation()
-            var _selectedEl = $("#historyContent").find(".ui-selected");
+            var _selectedEl = $("#previewContainer").find(".ui-selected");
             if (_selectedEl.length > 0) {
                 if (e.key === "ArrowDown" && !(_selectedEl.next().attr("id") === "slider")) {
                     _selectedEl.removeClass("ui-selected");
@@ -649,13 +679,6 @@ function activateHistoryButton() {
     }).appendTo("#historyPreview");
 
     setHistoryEntries(_content);
-
-    _content.append($("<div>", {"id": "slider", "css": "clear: both"}).slider({
-        slide: function (event, ui) {
-            $("#historyContent").css("fontSize", 12 + (parseInt(ui.value) * 12 / 100))
-        }
-    }));
-
     $("#history").click(function () {
         _historyPreview.dialog("open");
     })
@@ -671,6 +694,10 @@ function colorize(str) {
     for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
     color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
     return '#' + Array(6 - color.length + 1).join('0') + color;
+}
+
+function createIntroduction() {
+
 }
 
 //# sourceURL=LetterStructure.js

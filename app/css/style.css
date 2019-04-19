@@ -247,3 +247,19 @@ select {
     left: 30px;
     margin-top: 10px;
 }
+
+#sliderContainer {
+    position: fixed;
+    background-color: white;
+    width: 75%;
+    z-index: 2;
+}
+
+#sliderLabel {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.shadow {
+    box-shadow: 0px 15px 10px -8px rgba(0, 0, 0, 0.27);
+}
