@@ -214,6 +214,10 @@ ipcMain.on('updateAfterClose', () => {
     installUpdate = true;
 });
 
+ipcMain.on('receivedDropboxkey', () => {
+    mainWindow.send("receivedDropboxkey")
+})
+
 autoUpdater.on('checking-for-update', () => {
     log.info("Checking for updates...")
 });

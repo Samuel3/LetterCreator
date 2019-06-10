@@ -17,7 +17,7 @@ function createWebServer(callback) {
         res.writeHead(200, {'Content-Type': 'text/html'});
         if (req.url == "/") {
             res.end("<html><body>" +
-                "<div>Successfully logged into Dropbox</div>" +
+                "<div>LetterCreator has successfully logged into dropbox. You can now close this window.</div>" +
                 "<script>" +
                 "console.log(document.URL);\n" +
                 "var xmlHttp = new XMLHttpRequest();\n" +
@@ -38,6 +38,7 @@ function createWebServer(callback) {
                     token = token.substr(0, token.indexOf("&"));
                     console.log(token)
                     callback(token)
+                    ipcRenderer.send("receivedDropboxkey")
                 }
                 res.end('ok');
             });

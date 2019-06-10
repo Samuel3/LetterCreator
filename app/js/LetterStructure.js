@@ -4,7 +4,7 @@ const version = require("../package.json").version;
 require("./i18n");
 const dataStore = require("./Store");
 var officegen = require('officegen');
-var async = require ( 'async' );
+var async = require('async');
 var exportSelected = false;
 
 var store = new dataStore(function () {
@@ -28,20 +28,102 @@ var store = new dataStore(function () {
 
         var _select = $("#sender").empty()
 
-        for (data of store.get("sender")){
+        for (data of store.get("sender")) {
             var _option = $("<option>").html(data);
             _select.append(_option);
-        };
+        }
+        ;
         _select.append($("<option>", {"html": i18n("message.addsender")}));
     })
 });
 
-if (store.isDropboxKeyNeeded()) {
+function requestDropboxKey() {
     var DropboxServer = require("./RequestDropboxKey");
-    new DropboxServer(store.setDropboxKey)
+    new DropboxServer(store.setDropboxKey);
 }
 
-$(document).ready(function initialize () {
+if (store.isDropboxKeyNeeded()) {
+    requestDropboxKey();
+}
+
+function createWelcomeDialog() {
+    store.set("startedOnce", true);
+    let startedOnce = $("<div>", {
+        "id": "introduction",
+        html: $("<div>", {"id": "introductionText"}).append($("<div>", {
+            "id": "loading",
+            "class": "spinner",
+            css: "display:none"
+        })),
+        "title": i18n("title.introduction")
+    });
+    $("#content").append(startedOnce)
+
+    $("<div>", {"id":"intro_0", html: i18n("message.intro"), "appendTo": $("#introductionText")})
+    $("<div>", {"id":"intro_1", html: i18n("message.introUseDropbox"), "appendTo": $("#introductionText")}).hide()
+    $("a.dropbox").click(function (e) {
+        e.preventDefault()
+        requestDropboxKey()
+    });
+
+
+    let steps = $("<div>", {"id": "stepsContainer"});
+    startedOnce.append(steps)
+    var stepCounter = 0;
+    for (var i = 0; i < 2; i++) {
+        let step = $("<span>", {"class": "step"})
+        steps.append(step)
+    }
+    steps.on("click", "span", function (e) {
+        displayText($(this).index())
+    })
+    $(".step").first().addClass("active")
+
+    let useDropboxDiv = $("<div>", {"id": "useDropboxDiv", "text": ""})
+    $("#loading").hide()
+    startedOnce.dialog({
+        width: 640,
+        buttons: [{
+            text: i18n("button.back"),
+            "id": "startedOncePrevious",
+            click: function () {
+                stepCounter--
+                displayText(stepCounter)
+            }
+        },
+        {
+            text: i18n("button.further"),
+            "id": "startedOnceFurther",
+            click: function () {
+                stepCounter++
+                if ($("#startedOnceFurther").html() === i18n("button.done")) {
+                    $("#introduction").dialog("close")
+                }
+                displayText(stepCounter)
+            }
+        }]
+    })
+    $("#startedOncePrevious").hide()
+}
+
+function displayText(number) {
+    $("#startedOnceFurther").show()
+    $("#startedOncePrevious").show()
+    $("#introductionText").find(":visible").hide(function () {
+    })
+    $("#intro_" + number).show()
+    if (number == 0) {
+        $("#startedOncePrevious").hide()
+        $("#startedOnceFurther").html(i18n("button.further"))
+    } else if (number == ($(".step").length - 1)) {
+        $("#startedOnceFurther").html("Fertig")
+    }
+    $(".step.active").removeClass("active")
+    $(".step:eq(" + number+ ")").addClass("active")
+
+}
+
+$(document).ready(function initialize() {
     var history = store.get("history");
     if ($.isArray(history)) {
         history = history [0];
@@ -51,6 +133,9 @@ $(document).ready(function initialize () {
     }
 
     let startedOnce = store.get("startedOnce");
+    if (!startedOnce === true) {
+        createWelcomeDialog();
+    }
 
 
     $("#print-pdf").click(function () {
@@ -84,13 +169,14 @@ $(document).ready(function initialize () {
         $("#inputSender").val($("#sender").val());
         $("#formSender").dialog("open");
     });
-	if (typeof store.get("sender") === "undefined") {
-		store.set("sender", []);
-	}
-    for (data of store.get("sender")){
+    if (typeof store.get("sender") === "undefined") {
+        store.set("sender", []);
+    }
+    for (data of store.get("sender")) {
         var _option = $("<option>").html(data);
         _select.append(_option);
-    };
+    }
+    ;
     _select.append($("<option>", {"html": i18n("message.addsender")}));
     _fieldset.append(_select);
     var firstReceiver = $($(table.children()[1]).children()[0]);
@@ -99,7 +185,11 @@ $(document).ready(function initialize () {
         "html": "<div id='receiver'>" + getAddress(firstReceiver).join("<br>") + "</div>"
     });
     var place = history.place ? history.place : i18n("letter.place");
-    var _dateField = $("<div>", {"id":"date", "contenteditable":true,"html":"<div id='place'>" + place +"</div><input type='text' id='datepicker'>"})
+    var _dateField = $("<div>", {
+        "id": "date",
+        "contenteditable": true,
+        "html": "<div id='place'>" + place + "</div><input type='text' id='datepicker'>"
+    })
     var _subject = $("<input>", {
         "id": "subject",
         "type": "text"
@@ -113,7 +203,10 @@ $(document).ready(function initialize () {
         var nextChar = e.target.innerHTML.charAt(index)
         console.log(nextChar)
     });
-    var _greeting = $("<div>", {"id": "greeting", "contenteditable": true}).html(history.greeting ? history.greeting : i18n("letter.greeting"));
+    var _greeting = $("<div>", {
+        "id": "greeting",
+        "contenteditable": true
+    }).html(history.greeting ? history.greeting : i18n("letter.greeting"));
     var hr1 = $("<div>", {"id": "hr1", "class": "falzmarken"});
     var hr2 = $("<div>", {"id": "hr2", "class": "falzmarken"});
     var hr3 = $("<div>", {"id": "hr3", "class": "falzmarken"});
@@ -158,15 +251,17 @@ $(document).ready(function initialize () {
         });
         dialogContent.show();
     });
-    var form = $("<form>", {"id": "formSender", "title":i18n("message.addsender"), "html": i18n("message.sendername")});
+    var form = $("<form>", {
+        "id": "formSender",
+        "title": i18n("message.addsender"),
+        "html": i18n("message.sendername")
+    });
     var input = $("<input>", {"id": "inputSender"});
     form.append(input);
     $("#content").append(form);
     var _cancel = i18n("button.abort");
     var _delete = i18n("button.delete");
-    var _buttons = {
-
-    };
+    var _buttons = {};
     _buttons[_cancel] = function () {
         $(this).dialog("close");
     }
@@ -179,14 +274,14 @@ $(document).ready(function initialize () {
         $(this).dialog("close");
         $("#inputSender").val("");
     };
-     _buttons["OK"] = function () {
-         var option = $("<option>").html($("#inputSender").val());
-         $("select option:last").before(option);
-         store.set("sender", getSenderDataFromDropdown());
-         $("#sender").val($("#inputSender").val());
-         $("#inputSender").val("");
-         $(this).dialog("close");
-     }
+    _buttons["OK"] = function () {
+        var option = $("<option>").html($("#inputSender").val());
+        $("select option:last").before(option);
+        store.set("sender", getSenderDataFromDropdown());
+        $("#sender").val($("#inputSender").val());
+        $("#inputSender").val("");
+        $(this).dialog("close");
+    }
     form.dialog({
         autoOpen: false,
         buttons: _buttons
@@ -216,7 +311,7 @@ $(document).ready(function initialize () {
         ipcRenderer.send('open-file-dialog');
     });
     $(document).on({
-        'dragover dragenter': function(e) {
+        'dragover dragenter': function (e) {
             e.preventDefault();
         }
     });
@@ -229,7 +324,7 @@ $(document).ready(function initialize () {
 })
 
 function createAddressTable(addressData) {
-    var _table = $("<table>", {"id": "addressTable", "class":"ui-widget ui-widget-content"});
+    var _table = $("<table>", {"id": "addressTable", "class": "ui-widget ui-widget-content"});
     var _header = $("<thead>");
     var _tr = $("<tr>", {"class": "ui-widget-header"});
     _header.append(_tr);
@@ -258,16 +353,16 @@ function createAddressTable(addressData) {
 
     _table.append(_header);
     _table.append(_body);
-    _table.selectable({filter:"tr"}).draggable({
+    _table.selectable({filter: "tr"}).draggable({
         helper: "clone",
-        start: function(event, ui) {
+        start: function (event, ui) {
             c.tr = this;
             c.helper = ui.helper;
         }
     });
     _table.append($("<button>", {"id": "addRow"}).html("Add Row").click(function (e) {
         let tr = $("<tr>");
-        for (i = 0; i <10; i++) {
+        for (i = 0; i < 10; i++) {
             createTableData(tr, "");
         }
         createDeleteButton(tr);
@@ -293,7 +388,7 @@ function getAddress(tableRow) {
     if (!isCellEmpty(attributes[6])) {
         fullAddress.push(getValueOfTableCell(attributes[6]));
     }
-    if (!isCellEmpty(attributes[7]) ||!isCellEmpty(attributes[8])) {
+    if (!isCellEmpty(attributes[7]) || !isCellEmpty(attributes[8])) {
         var _city = getValueOfTableCell(attributes[7]) + " " + getValueOfTableCell(attributes[8]);
         fullAddress.push(_city);
     }
@@ -305,6 +400,7 @@ function getAddress(tableRow) {
     }
     return fullAddress;
 }
+
 function isCellEmpty(cell) {
     return typeof getValueOfTableCell(cell) === "undefined";
 }
@@ -409,7 +505,7 @@ ipcRenderer.on('saved-file', (event, path) => {
 
 ipcRenderer.on('exported-file', (event, path) => {
     if (path) {
-        var docx = officegen ( 'docx' );
+        var docx = officegen('docx');
         var _content;
         if (!exportSelected) {
             _content = getCurrentContent();
@@ -444,24 +540,24 @@ ipcRenderer.on('exported-file', (event, path) => {
         _receiverP.addText(_content.greeting);
 
 
-        var out = fs.createWriteStream (path);
+        var out = fs.createWriteStream(path);
 
-        out.on ( 'error', function ( err ) {
-            console.log ( err );
+        out.on('error', function (err) {
+            console.log(err);
         });
 
-        async.parallel ([
-            function ( done ) {
-                out.on ( 'close', function () {
-                    console.log ( 'Finish to create a DOCX file.' );
-                    done ( null );
+        async.parallel([
+            function (done) {
+                out.on('close', function () {
+                    console.log('Finish to create a DOCX file.');
+                    done(null);
                 });
-                docx.generate ( out );
+                docx.generate(out);
             }
 
-        ], function ( err ) {
-            if ( err ) {
-                console.log ( 'error: ' + err );
+        ], function (err) {
+            if (err) {
+                console.log('error: ' + err);
             }
         });
     }
@@ -494,7 +590,11 @@ ipcRenderer.on("message", function (event, content) {
 
 
 ipcRenderer.on("updateDownloaded", (event, info) => {
-    var message = $("<div>", {"class": "message", html: i18n("message.downloadcomplete"), "id": "updateReady"}).css("pointer-events", "all");
+    var message = $("<div>", {
+        "class": "message",
+        html: i18n("message.downloadcomplete"),
+        "id": "updateReady"
+    }).css("pointer-events", "all");
     var quitAndInstall = $("<a>", {
         "href": "#",
         "text": i18n("message.quitandinstall"),
@@ -516,8 +616,8 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
         }
     }).click(function () {
 
-            ipcRenderer.send("updateAfterClose");
-            $("#updateReady").hide()
+        ipcRenderer.send("updateAfterClose");
+        $("#updateReady").hide()
     });
     var nextRemember = $("<a>", {
         "href": "#",
@@ -533,8 +633,15 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
     $("#messageBox").append(message);
 });
 
+ipcRenderer.on("receivedDropboxkey", function () {
+    $("#introduction").dialog("close");
+});
+
 function showMessage(message, delay) {
-    $("#messageBox").append($("<div>", {"class":"message", html: message}).delay(delay).hide({"duration": "2000", easing: 'easeOutBounce'}).effect("shake"))
+    $("#messageBox").append($("<div>", {"class": "message", html: message}).delay(delay).hide({
+        "duration": "2000",
+        easing: 'easeOutBounce'
+    }).effect("shake"))
 }
 
 function setHistoryEntries() {
@@ -568,6 +675,7 @@ function setHistoryEntries() {
     }).selectable({
         start: function (event, ui) {
             var _el = $(event.originalEvent.target).parent()
+            event.preventDefault()
             if (_el.prevObject.attr("id") === "delete") {
                 removeElementFromHistory(_el)
             } else if (_el.prevObject.attr("id") === "export") {
@@ -592,12 +700,13 @@ function setHistoryEntries() {
         let previewEntry = $("<div>", {"id": i, "class": "historyEntry"});
 
         previewEntry.data("content", JSON.stringify(entry)).tooltip({
-            "items":"div",
+            "items": "div",
             "content": function () {
                 try {
                     var data = JSON.parse($(this).parent().data("content"));
                     return data.sender + "<br>" + data.time + "<br>" + data.printDate
-                } catch (e) {}
+                } catch (e) {
+                }
             }
         });
 
@@ -633,9 +742,11 @@ function setHistoryEntries() {
                 if (e.key === "ArrowDown" && !(_selectedEl.next().attr("id") === "slider")) {
                     _selectedEl.removeClass("ui-selected");
                     _selectedEl.next().addClass("ui-selected");
+                    _content.scrollTop(_content.scrollTop() + _selectedEl.next().position().top - 30);
                 } else if (e.key === "ArrowUp" && !(_selectedEl.index() === 0)) {
                     _selectedEl.removeClass("ui-selected");
                     _selectedEl.prev().addClass("ui-selected");
+                    _content.scrollTop(_content.scrollTop() + _selectedEl.prev().position().top) - 30;
                 } else if (e.key === "Enter") {
                     $("#historyPreview").dialog("close");
                     setContent(JSON.parse($(_selectedEl).data("content")))
@@ -651,7 +762,7 @@ function removeElementFromHistory(_el) {
     var _index = _el.index();
     var history = store.get("history")
     var _newHistory = [];
-    for (var i in history){
+    for (var i in history) {
         if (i != _index) {
             _newHistory.push(history[i])
         }
@@ -665,8 +776,8 @@ function activateHistoryButton() {
         "id": "historyPreview",
         title: i18n("title.historypreview")
     }).css({
-        height:"350px",
-        overflow:"auto"
+        height: "350px",
+        overflow: "auto"
     }).dialog({
         autoOpen: false,
         width: "80%",
@@ -691,13 +802,9 @@ function activateExportButton() {
 }
 
 function colorize(str) {
-    for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
+    for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash)) ;
     color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
     return '#' + Array(6 - color.length + 1).join('0') + color;
-}
-
-function createIntroduction() {
-
 }
 
 //# sourceURL=LetterStructure.js

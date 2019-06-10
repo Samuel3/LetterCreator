@@ -91,7 +91,7 @@ Store.prototype.storeCloudData = function () {
 };
 
 Store.prototype.isDropboxKeyNeeded = function () {
-    return (typeof this.dropboxKey === "undefined") && this.useDropbox()
+    return ((typeof this.dropboxKey === "undefined") || this.dropboxKey === "") && this.useDropbox()
 };
 
 Store.prototype.deleteHistory = function () {
@@ -103,7 +103,7 @@ Store.prototype.deleteHistory = function () {
 Store.prototype.useDropbox = function () {
     this.store = require('data-store')('LetterCreator');
     var dropboxUsed = this.store.get("settings") || {};
-    return typeof dropboxUsed.useDropbox === "undefined" ? true: (dropboxUsed.useDropbox === true);
+    return typeof dropboxUsed.useDropbox === "undefined" ? false: (dropboxUsed.useDropbox === true);
 }
 
 //# sourceURL=Store.js

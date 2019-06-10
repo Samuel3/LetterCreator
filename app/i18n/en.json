@@ -50,6 +50,8 @@
   "message.installafterclose": "Install after exit",
   "message.remembermelater": "Remember me later",
   "message.dropboxfailed": "Dropbox does not react, start without local Sync",
+  "message.intro": "",
+  "message.introUseDropbox": "If you want to use Dropbox click <a href='' class='dropbox'>here</a>. Otherwise you can close this message. No worry you can later activate dropbox sync via settings.",
   "message.usedropbox": "Should Dropbox be used?",
   "message.dropboxkey":"Dropbox Key",
   "message.deletedropboxkey":"Delete Dropbox key",
@@ -65,8 +67,12 @@
   "button.deleteAll": "Delete History?",
   "button.delete": "Delete",
   "button.exportall": "Export all letters",
+  "button.further": "Further",
+  "button.done": "Close",
+  "button.back": "Back",
   "title.historypreview": "Stored letters",
   "title.intro": "Introduction",
   "title.confirmation": "Confirmation",
-  "title.size": "Preview size"
+  "title.size": "Preview size",
+  "title.introduction": "Introduction"
 }

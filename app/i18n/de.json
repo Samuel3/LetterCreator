@@ -50,7 +50,8 @@
   "message.remembermelater": "Später erinnern",
   "message.noreceiver": "Doppelklicken um Empfänger hinzuzufügen",
   "message.dropboxfailed": "Dropbox reagiert nicht, starte ohne lokalen Sync",
-  "message.intro": "",
+  "message.intro": "Herzlich willkommen bei Lettercreator!<br><br>Lettercreator dient zur Erstellung von Briefen und beinhaltet neben einer Adressverwaltung auch eine Übersicht über die erstellten Briefe. Außerdem kann er die Daten auch in der Cloud speichern.",
+  "message.introUseDropbox": "Wenn Sie Dropbox verwenden möchten, klicken Sie <a href='' class='dropbox'>hier</a>. Wenn nicht, können Sie den Dialog einfach schließen. Keine Sorge, die Dropboxsynchronisierung können Sie auch später über die Einstellungen aktivieren.",
   "message.usedropbox": "Soll Dropbox verwendet werden?",
   "message.dropboxkey":"Dropbox Key:",
   "message.deletedropboxkey":"Dropbox Key löschen",
@@ -66,8 +67,12 @@
   "button.deleteAll": "Historie löschen?",
   "button.delete": "Löschen",
   "button.exportall": "Alle Briefe exportieren",
+  "button.further": "Weiter",
+  "button.done": "Fertig",
+  "button.back": "Zurück",
   "title.historypreview":"Gespeicherte Briefe",
   "title.intro": "Einführung",
   "title.confirmation": "Bestätigung",
-  "title.size": "Vorschaugröße"
+  "title.size": "Vorschaugröße",
+  "title.introduction": "Einführung"
 }

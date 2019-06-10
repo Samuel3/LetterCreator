@@ -86,7 +86,7 @@ $(document).ready(function () {
     content.append($("<p>").html(i18n("message.dropboxkey")))
     content.append($("<input>", {
         "id": "dropboxKey",
-        "value": store.get("dropboxKey")
+        "value": settings.dropboxKey
     }));
     content.append($("<br>"));
     content.append($("<button>", {
@@ -127,8 +127,8 @@ function getSettings() {
 }
 
 function setSettings(settings) {
-    $("#lang").val(settings.lang);
-    $("#historySize").val(settings.numHistory);
+    $("#lang").val(settings.lang || $("#lang").val());
+    $("#historySize").val(settings.numHistory || 20);
 }
 
 function showMessage(message) {
