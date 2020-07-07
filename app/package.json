@@ -8,7 +8,7 @@
   },
   "author": "Samuel Mathes",
   "devDependencies": {
-    "electron": "^3.0.7"
+    "electron": "^9.1.0"
   },
   "dependencies": {
     "data-store": "^1.0.0",
