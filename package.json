@@ -10,6 +10,7 @@
     "start": "npm install && electron ./app",
     "pack": "build --dir",
     "prerelease": "node build/prebuild.js",
+    "test": "npm --version",
     "dist": "build",
     "release": "build"
   },
