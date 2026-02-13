@@ -10,7 +10,10 @@
     "start": "npm install && electron ./app",
     "pack": "build --dir",
     "prerelease": "node build/prebuild.js",
-    "test": "npm --version",
+    "test": "mocha test/**/*.test.js --timeout 5000",
+    "test:unit": "mocha test/**/*.test.js --timeout 5000",
+    "test:e2e": "mocha test/spec.js --timeout 300000",
+    "test:all": "mocha test/**/*.test.js test/spec.js --timeout 300000",
     "dist": "build",
     "release": "build"
   },
