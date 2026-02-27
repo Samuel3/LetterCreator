@@ -17,7 +17,7 @@ describe('LetterStructure Helper Functions', function() {
             }
             
             function getValueOfTableCell(cell) {
-                return cell && cell.value ? cell.value : (cell && cell.text ? cell.text : undefined);
+                return cell && cell.value ? cell.value : (cell && cell.text ? cell.text : "");
             }
 
             if (!isCellEmpty(attributes[0]) || !isCellEmpty(attributes[1]) || 

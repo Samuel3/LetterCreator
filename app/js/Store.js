@@ -4,6 +4,7 @@ const log = require('electron-log');
 require("./i18n");
 
 var Store = function (callback) {
+    var self = this;
     this.store = require('data-store')('LetterCreator');
     var dropboxUsed = this.useDropbox()
     if (dropboxUsed) {
@@ -20,7 +21,7 @@ var Store = function (callback) {
             for (var key in storedData) {
                 this.store.set(key, storedData[key]);
             }
-            setTimeout(callback, 1)
+            setTimeout(function() { callback.call(self); }, 1)
         });
         this.box.filesDownload({path: "/config.json"}).then(function (response) {
             reader.readAsText(response.fileBlob)
@@ -30,6 +31,8 @@ var Store = function (callback) {
                 ipcRenderer.send('message', i18n("message.dropboxfailed"));
             }
         })
+    } else if (callback) {
+        callback.call(this);
     }
 };
 
@@ -101,7 +104,9 @@ Store.prototype.deleteHistory = function () {
 };
 
 Store.prototype.useDropbox = function () {
-    this.store = require('data-store')('LetterCreator');
+    if (!this.store) {
+        this.store = require('data-store')('LetterCreator');
+    }
     var dropboxUsed = this.store.get("settings") || {};
     return typeof dropboxUsed.useDropbox === "undefined" ? false: (dropboxUsed.useDropbox === true);
 }

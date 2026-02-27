@@ -1,32 +1,32 @@
 const assert = require('assert');
 const path = require('path');
+const Module = require('module');
+const originalRequire = Module.prototype.require;
 
 describe('Store', function() {
     let Store;
     let store;
     let mockDataStore;
-    let originalRequire;
+
+    let mockDataStoreInstance;
 
     beforeEach(function() {
-        // Create a mock data-store
+        // Create a mock data-store (singleton)
+        mockDataStoreInstance = {
+            data: {},
+            get: function(key) {
+                return this.data[key];
+            },
+            set: function(key, value) {
+                this.data[key] = value;
+            },
+            save: function() {}
+        };
         mockDataStore = function(name) {
-            const data = {};
-            return {
-                get: function(key) {
-                    return data[key];
-                },
-                set: function(key, value) {
-                    data[key] = value;
-                },
-                data: data,
-                save: function() {}
-            };
+            return mockDataStoreInstance;
         };
 
         // Mock modules before requiring Store
-        const Module = require('module');
-        const originalRequire = Module.prototype.require;
-        
         Module.prototype.require = function(id) {
             if (id === 'data-store') {
                 return mockDataStore;
@@ -45,6 +45,16 @@ describe('Store', function() {
                     error: function() {},
                     warn: function() {}
                 };
+            }
+            if (id === 'electron-store') {
+                return function() {
+                    return {
+                        get: function() { return undefined; }
+                    };
+                };
+            }
+            if (id === 'os-locale') {
+                return { sync: function() { return 'de'; } };
             }
             if (id === 'dropbox') {
                 return {
@@ -76,8 +86,7 @@ describe('Store', function() {
 
     afterEach(function() {
         // Restore original require
-        const Module = require('module');
-        Module.prototype.require = require;
+        Module.prototype.require = originalRequire;
         delete require.cache[require.resolve('../app/js/Store.js')];
         delete require.cache[require.resolve('../app/js/i18n.js')];
     });
@@ -85,21 +94,21 @@ describe('Store', function() {
     describe('Store initialization', function() {
         it('should create a Store instance', function(done) {
             store = new Store(function() {
-                assert.ok(store);
+                assert.ok(this);
                 done();
             });
         });
 
         it('should have get method', function(done) {
             store = new Store(function() {
-                assert.equal(typeof store.get, 'function');
+                assert.equal(typeof this.get, 'function');
                 done();
             });
         });
 
         it('should have set method', function(done) {
             store = new Store(function() {
-                assert.equal(typeof store.set, 'function');
+                assert.equal(typeof this.set, 'function');
                 done();
             });
         });
