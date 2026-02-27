@@ -60,7 +60,7 @@ let mainWindow;
 
 function createWindow () {
     autoUpdater.checkForUpdates();
-    mainWindow = new BrowserWindow({width: 640, height: 480, backgroundColor: "#04C800"});
+    mainWindow = new BrowserWindow({width: 640, height: 480, backgroundColor: "#04C800", webPreferences: {nodeIntegration: true, contextIsolation: false}});
     mainWindow.maximize();
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '/sites/index.html'),
@@ -189,7 +189,7 @@ function loadDialog() {
 }
 
 function showReleaseNotes(releaseNotes) {
-    releaseNote = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800"});
+    releaseNote = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800", webPreferences: {nodeIntegration: true, contextIsolation: false}});
     releaseNote.loadURL(url.format({
         pathname: path.join(__dirname, '/sites/update.html'),
         protocol: 'file:',

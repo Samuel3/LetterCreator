@@ -68,7 +68,7 @@ template = function () {
                 {
                     label: i18n("menu.edit.settings"),
                     click: function () {
-                    settingsWindow = new BrowserWindow({width: 800, height: 600, title: "Settings"});
+                    settingsWindow = new BrowserWindow({width: 800, height: 600, title: "Settings", webPreferences: {nodeIntegration: true, contextIsolation: false}});
                     settingsWindow.loadURL(url.format({
                         pathname: path.join(__dirname, '../sites/settings.html'),
                         protocol: 'file:',
@@ -134,7 +134,7 @@ template = function () {
                 {
                     label: i18n("menu.help.about"),
                     click(){
-                        aboutWindow = new BrowserWindow({width: 800, height: 600, title: "About"});
+                        aboutWindow = new BrowserWindow({width: 800, height: 600, title: "About", webPreferences: {nodeIntegration: true, contextIsolation: false}});
                         aboutWindow.loadURL(url.format({
                             pathname: path.join(__dirname, '../sites/about.html'),
                             protocol: 'file:',
