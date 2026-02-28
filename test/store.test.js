@@ -238,16 +238,12 @@ describe('Store', function() {
     describe('Store.storeHistory', function() {
         beforeEach(function(done) {
             store = new Store(function() {
-                // Clear history before each test
                 store.set('history', []);
                 done();
             });
         });
 
         it('should add new entry to history when history exists', function() {
-            // Initialize history first
-            store.set('history', []);
-            
             const content1 = {
                 sender: 'John Doe',
                 receiver: 'Jane Smith',
@@ -260,20 +256,10 @@ describe('Store', function() {
                 subject: 'Test 2',
                 content: 'Content 2'
             };
-            
-            // Manually add to history since storeHistory requires getCurrentContent
-            let history = store.get('history') || [];
-            if (!store.compareTwoHistories(content1, history[0] || {})) {
-                history.unshift(content1);
-                store.set('history', history);
-            }
-            
-            history = store.get('history');
-            if (!store.compareTwoHistories(content2, history[0] || {})) {
-                history.unshift(content2);
-                store.set('history', history);
-            }
-            
+
+            store.set('history', [content1]);
+            store.storeHistory(content2);
+
             const finalHistory = store.get('history');
             assert.equal(finalHistory.length, 2);
             assert.equal(finalHistory[0].sender, 'Jane Doe');
@@ -287,16 +273,10 @@ describe('Store', function() {
                 subject: 'Test',
                 content: 'Content'
             };
-            
-            // Manually add to history
-            let history = store.get('history') || [];
-            history.unshift(content);
-            store.set('history', history);
-            
-            // Try to add same content again
-            const isDuplicate = store.compareTwoHistories(content, history[0]);
-            assert.equal(isDuplicate, true, 'Should identify duplicate content');
-            
+
+            store.set('history', [content]);
+            store.storeHistory(content);
+
             const finalHistory = store.get('history');
             assert.equal(finalHistory.length, 1);
         });
