@@ -191,7 +191,7 @@ function loadDialog() {
 }
 
 function showReleaseNotes(releaseNotes) {
-    releaseNote = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800", webPreferences: {nodeIntegration: true, contextIsolation: false}});
+    releaseNote = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800", webPreferences: {nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, 'js/releaseNotes-preload.js')}});
     releaseNote.loadURL(url.format({
         pathname: path.join(__dirname, '/sites/update.html'),
         protocol: 'file:',
@@ -206,6 +206,12 @@ function showReleaseNotes(releaseNotes) {
 
 ipcMain.on('open-file-dialog', () => {
     loadDialog();
+});
+
+ipcMain.on('close-release-notes', () => {
+    if (releaseNote) {
+        releaseNote.close();
+    }
 });
 
 ipcMain.on('updateDirectly', () => {
