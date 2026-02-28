@@ -30,6 +30,7 @@ var Store = function (callback) {
             if (JSON.parse(error.error).error_summary !== "path/not_found/..") {
                 ipcRenderer.send('message', i18n("message.dropboxfailed"));
             }
+            setTimeout(function() { callback.call(self); }, 1);
         })
     } else if (callback) {
         callback.call(this);
