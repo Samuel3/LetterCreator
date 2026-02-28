@@ -7,7 +7,7 @@ var locale;
 try {
     const Store = require("electron-store");
     var store = new Store();
-    if (typeof store.get("settings") !== "undefined") {
+    if (typeof store.get("settings") !== "undefined" && typeof store.get("settings").lang !== "undefined") {
         locale = store.get("settings").lang;
         if (locale === "English") {
             locale = "en";
