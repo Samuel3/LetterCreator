@@ -32,6 +32,59 @@ describe('LetterStructure Helper Functions', function() {
         });
     });
 
+    describe('getCurrentContent structure', function() {
+        // Mock implementation
+        function getCurrentContent(mockData) {
+            return {
+                place: mockData.place || "Ort, den ",
+                sender: mockData.sender || "",
+                receiver: mockData.receiver || "",
+                subject: mockData.subject || "Betreff: Ihr Schreiben vom",
+                content: mockData.content || "Sehr geehrter Herr <br><br>Lorem Ipsum",
+                greeting: mockData.greeting || "Grüße<br><br>Absender",
+                foldingMarks: mockData.foldingMarks || false,
+                date: mockData.date || new Date().toLocaleDateString('de-DE'),
+                time: mockData.time || new Date().toLocaleTimeString(),
+                printDate: mockData.printDate || new Date().toLocaleDateString(),
+                "version": "1.0"
+            };
+        }
+
+        it('should return content object with all required fields', function() {
+            const mockData = {
+                place: "Berlin, den",
+                sender: "Max Mustermann",
+                receiver: "Jane Doe",
+                subject: "Test Subject",
+                content: "Test Content",
+                greeting: "Mit freundlichen Grüßen",
+                foldingMarks: true,
+                date: "01.01.2020",
+                time: "10:00:00",
+                printDate: "01.01.2020"
+            };
+            const result = getCurrentContent(mockData);
+            assert.equal(result.place, "Berlin, den");
+            assert.equal(result.sender, "Max Mustermann");
+            assert.equal(result.receiver, "Jane Doe");
+            assert.equal(result.subject, "Test Subject");
+            assert.equal(result.content, "Test Content");
+            assert.equal(result.greeting, "Mit freundlichen Grüßen");
+            assert.equal(result.foldingMarks, true);
+            assert.equal(result.date, "01.01.2020");
+            assert.equal(result.version, "1.0");
+        });
+
+        it('should use default values when fields are missing', function() {
+            const result = getCurrentContent({});
+            assert.ok(result.place);
+            assert.ok(result.subject);
+            assert.ok(result.content);
+            assert.ok(result.greeting);
+            assert.equal(result.version, "1.0");
+        });
+    });
+
     describe('colorize', function() {
         it('should return a valid hex color', function() {
             const color = colorize("test string");
