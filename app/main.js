@@ -8,6 +8,7 @@ const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const store = require('data-store')('LetterCreator');
 const log = require('electron-log');
 var installUpdate = false;
+var pendingExportPath = null;
 require("./js/i18n");
 require("./js/MenuTemplate");
 
@@ -175,7 +176,10 @@ ipcMain.on("export-all-dialog", () => {
         ]
     };
     dialog.showSaveDialog(options, (filename) => {
-        settingsWindow.send('exported-filecollection', filename)
+        if (filename) {
+            pendingExportPath = filename;
+            settingsWindow.send('ready-for-export-data');
+        }
     })
 });
 
@@ -211,6 +215,24 @@ ipcMain.on('open-file-dialog', () => {
 ipcMain.on('close-release-notes', () => {
     if (releaseNote) {
         releaseNote.close();
+    }
+});
+
+ipcMain.on('close-settings-window', () => {
+    if (settingsWindow) {
+        settingsWindow.close();
+    }
+});
+
+ipcMain.on('export-data', (_event, data) => {
+    if (pendingExportPath) {
+        try {
+            fs.writeFileSync(pendingExportPath, data);
+            log.info(`Exported history to: ${pendingExportPath}`);
+        } catch (e) {
+            log.error(`Export failed: ${e}`);
+        }
+        pendingExportPath = null;
     }
 });
 
