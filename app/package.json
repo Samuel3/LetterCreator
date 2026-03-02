@@ -7,9 +7,6 @@
     "start": "electron ."
   },
   "author": "Samuel Mathes",
-  "devDependencies": {
-    "electron": "^33.0.0"
-  },
   "dependencies": {
     "data-store": "^1.0.0",
     "dropbox": "^4.0.15",
