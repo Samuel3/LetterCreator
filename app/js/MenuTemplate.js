@@ -134,7 +134,7 @@ template = function () {
                 {
                     label: i18n("menu.help.about"),
                     click(){
-                        aboutWindow = new BrowserWindow({width: 800, height: 600, title: "About", webPreferences: {nodeIntegration: false, contextIsolation: true}});
+                        aboutWindow = new BrowserWindow({width: 800, height: 600, title: "About", webPreferences: {nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, 'about-preload.js')}});
                         aboutWindow.loadURL(url.format({
                             pathname: path.join(__dirname, '../sites/about.html'),
                             protocol: 'file:',
