@@ -134,7 +134,7 @@ template = function () {
                 {
                     label: i18n("menu.help.about"),
                     click(){
-                        aboutWindow = new BrowserWindow({width: 800, height: 600, title: "About", webPreferences: {nodeIntegration: true, contextIsolation: false}});
+                        aboutWindow = new BrowserWindow({width: 800, height: 600, title: "About", webPreferences: {nodeIntegration: false, contextIsolation: true}});
                         aboutWindow.loadURL(url.format({
                             pathname: path.join(__dirname, '../sites/about.html'),
                             protocol: 'file:',
