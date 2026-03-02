@@ -32,7 +32,9 @@ var Store = function (callback) {
             }
         })
     } else if (callback) {
-        callback.call(this);
+        setTimeout(function () {
+            callback.call(self);
+        }, 0);
     }
 };
 
