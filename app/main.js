@@ -77,7 +77,7 @@ function createWindow () {
     menu = Menu.buildFromTemplate(template());
     Menu.setApplicationMenu(menu);
     mainWindow.webContents.on('did-finish-load', function () {
-        for (arg of process.argv) {
+        for (const arg of process.argv) {
             if (fs.existsSync(arg) && arg.endsWith(".let")) {
                 try {
                     var content = fs.readFileSync(arg, 'utf8');
@@ -153,7 +153,7 @@ function saveDialog(content) {
         ]
     };
     dialog.showSaveDialog(options, (filename) => {
-        if (filename && content) {
+        if (filename && content != null) {
             fs.writeFileSync(filename, content);
         } else if (filename) {
             mainWindow.webContents.send('save-requested');
@@ -259,7 +259,7 @@ function loadDialog() {
         filters: [{name: 'Letters', extensions: ['let']}],
         properties: ['openFile']
     }, (files) => {
-        if (files) {
+        if (files && files.length > 0) {
             try {
                 var content = fs.readFileSync(files[0] + '');
                 mainWindow.webContents.send('file-content', content.toString());
@@ -335,6 +335,10 @@ ipcMain.on('dropbox-login', (event, authUrl) => {
                         token = token.slice(token.indexOf('access_token=') + 13);
                         token = token.slice(0, token.indexOf('&'));
                         mainWindow.webContents.send('dropbox-auth-token', token);
+                        if (dropboxAuthServer) {
+                            try { dropboxAuthServer.close(); } catch (e) { console.error('Error closing Dropbox auth server:', e); }
+                            dropboxAuthServer = null;
+                        }
                     } catch (e) {
                         console.error('Error parsing Dropbox token:', e);
                     }

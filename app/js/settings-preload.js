@@ -46,6 +46,9 @@ contextBridge.exposeInMainWorld('storeAPI', {
         var settings = dataStore.get('settings') || {};
         return (typeof settings.useDropbox === 'undefined') ? false : (settings.useDropbox === true);
     },
+    deleteHistory: function () {
+        dataStore.set('history', []);
+    },
     storeCloudData: function () {
         var settings = dataStore.get('settings') || {};
         var dropboxKey = settings.dropboxKey;

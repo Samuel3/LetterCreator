@@ -21,7 +21,7 @@ window.storeAPI.initialize(function () {
 
         var _select = $("#sender").empty()
 
-        for (data of window.storeAPI.get("sender")) {
+        for (data of (window.storeAPI.get("sender") || [])) {
             var _option = $("<option>").html(data);
             _select.append(_option);
         }
