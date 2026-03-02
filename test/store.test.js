@@ -280,6 +280,35 @@ describe('Store', function() {
             const finalHistory = store.get('history');
             assert.equal(finalHistory.length, 1);
         });
+
+        describe('when history does not exist', function() {
+            const initialContent = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Initial Test',
+                content: 'Initial Content'
+            };
+
+            beforeEach(function() {
+                delete mockDataStoreInstance.data['history'];
+                global.getCurrentContent = function() { return initialContent; };
+            });
+
+            afterEach(function() {
+                delete global.getCurrentContent;
+            });
+
+            it('should initialize history when it does not exist', function() {
+                store.storeHistory(initialContent);
+
+                const finalHistory = store.get('history');
+                assert.equal(finalHistory.length, 1);
+                assert.equal(finalHistory[0].sender, 'John Doe');
+                assert.equal(finalHistory[0].receiver, 'Jane Smith');
+                assert.equal(finalHistory[0].subject, 'Initial Test');
+                assert.equal(finalHistory[0].content, 'Initial Content');
+            });
+        });
     });
 
     describe('Store.deleteHistory', function() {
