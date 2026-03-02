@@ -1,18 +1,11 @@
-const {ipcRenderer} = require('electron');
-const fs = require('fs');
-const version = require("../package.json").version;
-require("./i18n");
-const dataStore = require("./Store");
-var officegen = require('officegen');
-var async = require('async');
 var exportSelected = false;
 
-var store = new dataStore(function () {
+window.storeAPI.initialize(function () {
     $(document).ready(function () {
         // Update
         setHistoryEntries()
 
-        var addressData = store.get("address")
+        var addressData = window.storeAPI.get("address")
         var _body = $(document).find("tbody")
         _body.empty()
         if (typeof addressData !== "undefined") {
@@ -28,7 +21,7 @@ var store = new dataStore(function () {
 
         var _select = $("#sender").empty()
 
-        for (data of store.get("sender")) {
+        for (data of window.storeAPI.get("sender")) {
             var _option = $("<option>").html(data);
             _select.append(_option);
         }
@@ -38,16 +31,22 @@ var store = new dataStore(function () {
 });
 
 function requestDropboxKey() {
-    var DropboxServer = require("./RequestDropboxKey");
-    new DropboxServer(store.setDropboxKey);
+    var authUrl = window.storeAPI.getDropboxAuthUrl();
+    if (authUrl) {
+        window.electronAPI.dropboxLogin(authUrl);
+        window.electronAPI.onDropboxAuthToken(function (token) {
+            window.storeAPI.setDropboxKey(token);
+            window.storeAPI.storeCloudData();
+        });
+    }
 }
 
-if (store.isDropboxKeyNeeded()) {
+if (window.storeAPI.isDropboxKeyNeeded()) {
     requestDropboxKey();
 }
 
 function createWelcomeDialog() {
-    store.set("startedOnce", true);
+    window.storeAPI.set("startedOnce", true);
     let startedOnce = $("<div>", {
         "id": "introduction",
         html: $("<div>", {"id": "introductionText"}).append($("<div>", {
@@ -124,7 +123,7 @@ function displayText(number) {
 }
 
 $(document).ready(function initialize() {
-    var history = store.get("history");
+    var history = window.storeAPI.get("history");
     if ($.isArray(history)) {
         history = history [0];
     }
@@ -132,26 +131,26 @@ $(document).ready(function initialize() {
         history = {}
     }
 
-    let startedOnce = store.get("startedOnce");
+    let startedOnce = window.storeAPI.get("startedOnce");
     if (!startedOnce === true) {
         createWelcomeDialog();
     }
 
 
     $("#print-pdf").click(function () {
-        ipcRenderer.send('print-to-pdf');
+        window.electronAPI.printToPdf();
         showMessage(i18n("message.letterstored"), 10000);
-        store.storeHistory(getCurrentContent());
+        window.storeAPI.storeHistory(getCurrentContent());
         setHistoryEntries();
     });
     $("#print").click(function () {
-        ipcRenderer.send('print');
+        window.electronAPI.print();
         showMessage(i18n("message.letterstored"), 10000);
-        store.storeHistory(getCurrentContent());
+        window.storeAPI.storeHistory(getCurrentContent());
         setHistoryEntries();
 
     });
-    var table = createAddressTable(store.get("address"));
+    var table = createAddressTable(window.storeAPI.get("address"));
     var date = new Date();
     var _fieldset = $("<fieldset>");
     _fieldset.click(function (e) {
@@ -169,10 +168,10 @@ $(document).ready(function initialize() {
         $("#inputSender").val($("#sender").val());
         $("#formSender").dialog("open");
     });
-    if (typeof store.get("sender") === "undefined") {
-        store.set("sender", []);
+    if (typeof window.storeAPI.get("sender") === "undefined") {
+        window.storeAPI.set("sender", []);
     }
-    for (data of store.get("sender")) {
+    for (data of window.storeAPI.get("sender")) {
         var _option = $("<option>").html(data);
         _select.append(_option);
     }
@@ -245,7 +244,7 @@ $(document).ready(function initialize() {
                 "OK": function () {
                     $(this).dialog("close");
                     $("#addressTable").find(".ui-selected > td:eq(0) > input").trigger("dblclick");
-                    store.set("address", getAddressDataFromTable())
+                    window.storeAPI.set("address", getAddressDataFromTable())
                 }
             }
         });
@@ -270,14 +269,14 @@ $(document).ready(function initialize() {
         $("#sender > option").filter(function (i, el) {
             return $(el).val() === _delVal
         }).remove();
-        store.set("sender", getSenderDataFromDropdown());
+        window.storeAPI.set("sender", getSenderDataFromDropdown());
         $(this).dialog("close");
         $("#inputSender").val("");
     };
     _buttons["OK"] = function () {
         var option = $("<option>").html($("#inputSender").val());
         $("select option:last").before(option);
-        store.set("sender", getSenderDataFromDropdown());
+        window.storeAPI.set("sender", getSenderDataFromDropdown());
         $("#sender").val($("#inputSender").val());
         $("#inputSender").val("");
         $(this).dialog("close");
@@ -305,10 +304,10 @@ $(document).ready(function initialize() {
         beforePrint();
     })
     $("#save").click(function () {
-        ipcRenderer.send('save-dialog');
+        window.electronAPI.saveDialog(JSON.stringify(getCurrentContent()));
     })
     $("#load").click(function () {
-        ipcRenderer.send('open-file-dialog');
+        window.electronAPI.openFileDialog();
     });
     $(document).on({
         'dragover dragenter': function (e) {
@@ -316,7 +315,16 @@ $(document).ready(function initialize() {
         }
     });
     document.body.ondrop = (ev) => {
-        setContent(JSON.parse(fs.readFileSync(ev.dataTransfer.files[0].path + "")))
+        try {
+            var file = ev.dataTransfer.files[0];
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                setContent(JSON.parse(e.target.result));
+            };
+            reader.readAsText(file);
+        } catch (err) {
+            console.error('Error reading dropped file:', err);
+        }
         ev.preventDefault()
     };
     activateHistoryButton();
@@ -417,7 +425,7 @@ function createTableData(parent, content) {
         var addressField = getAddress($(e.target).parent().parent());
         $("#receiver").html(addressField.join("<br>"));
         $("#createAddress").dialog("close");
-        store.set("address", getAddressDataFromTable());
+        window.storeAPI.set("address", getAddressDataFromTable());
     }).keypress(function (e) {
         if (e.keyCode === $.ui.keyCode.ENTER) {
             $(this).trigger("dblclick");
@@ -490,106 +498,52 @@ function setContent(content) {
 }
 
 function beforePrint() {
-    store.storeHistory(getCurrentContent());
+    window.storeAPI.storeHistory(getCurrentContent());
     try {
         createAddress.dialog("close");
     } catch (e) {
     }
 }
 
-ipcRenderer.on('saved-file', (event, path) => {
-    if (path) {
-        fs.writeFileSync(path, JSON.stringify(getCurrentContent()));
+window.electronAPI.onFileContent(function (content) {
+    try {
+        setContent(JSON.parse(content));
+    } catch (e) {
+        console.error('Error parsing file content:', e);
     }
 });
 
-ipcRenderer.on('exported-file', (event, path) => {
-    if (path) {
-        var docx = officegen('docx');
-        var _content;
-        if (!exportSelected) {
-            _content = getCurrentContent();
-        } else {
-            _content = JSON.parse($("#historyPreview").find(".ui-selected").data("content"));
-            exportSelected = false;
-        }
-        var _receivers = _content.receiver.split("<br>");
-        for (var i = 0; i < 3; i++) {
-            docx.createP();
-        }
-        var _receiverP = docx.createP();
-        _receiverP.addText(_content.sender, {underline: true, font_size: 10});
-        _receiverP.addLineBreak();
-        _receiverP.addText(_receivers[0]);
-        for (var i = 1; i < _receivers.length; i++) {
-            _receiverP.addLineBreak();
-            _receiverP.addText(_receivers[i]);
-        }
-        for (var i = 0; i < 3; i++) {
-            docx.createP()
-        }
-        _receiverP = docx.createP()
-        _receiverP.addText(_content.subject, {"bold": true});
-        docx.createP()
-        docx.createP()
-        _receiverP = docx.createP()
-        _receiverP.addText(_content.content);
-        docx.createP();
-        docx.createP();
-        _receiverP = docx.createP()
-        _receiverP.addText(_content.greeting);
+window.electronAPI.saveRequested(function () {
+    window.electronAPI.saveDialog(JSON.stringify(getCurrentContent()));
+});
 
-
-        var out = fs.createWriteStream(path);
-
-        out.on('error', function (err) {
-            console.log(err);
-        });
-
-        async.parallel([
-            function (done) {
-                out.on('close', function () {
-                    console.log('Finish to create a DOCX file.');
-                    done(null);
-                });
-                docx.generate(out);
-            }
-
-        ], function (err) {
-            if (err) {
-                console.log('error: ' + err);
-            }
-        });
+// The export dialog now sends content to main process for DOCX generation
+function triggerExport() {
+    var _content;
+    if (!exportSelected) {
+        _content = getCurrentContent();
+    } else {
+        _content = JSON.parse($("#historyPreview").find(".ui-selected").data("content"));
+        exportSelected = false;
     }
+    window.electronAPI.exportDialog(JSON.stringify(_content));
+}
+
+window.electronAPI.onClosed(function () {
+    window.storeAPI.storeHistory(getCurrentContent());
 });
 
-ipcRenderer.on('selected-directory', (event, path) => {
-    if (path) {
-        var letter = JSON.parse(fs.readFileSync(path + ""));
-        setContent(letter);
-    }
-});
-
-ipcRenderer.on('file-open', (event, path) => {
-    var letter = JSON.parse(fs.readFileSync(path + ""));
-    setContent(letter);
-});
-
-ipcRenderer.on("closed", () => {
-    store.storeHistory(getCurrentContent());
-});
-
-ipcRenderer.on('wrote-pdf', function (event, path) {
+window.electronAPI.onWrotePdf(function (path) {
     const message = `Wrote PDF to: ${path}`;
-    document.getElementById('pdf-path').innerHTML = message
+    document.getElementById('pdf-path').innerHTML = message;
 });
 
-ipcRenderer.on("message", function (event, content) {
+window.electronAPI.onMessage(function (content) {
     showMessage(content, 5000);
 });
 
 
-ipcRenderer.on("updateDownloaded", (event, info) => {
+window.electronAPI.onUpdateDownloaded(function (info) {
     var message = $("<div>", {
         "class": "message",
         html: i18n("message.downloadcomplete"),
@@ -600,10 +554,10 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
         "text": i18n("message.quitandinstall"),
         "click": function () {
             console.log("quit and install")
-            ipcRenderer.send("updateDirectly");
+            window.electronAPI.updateDirectly();
         }
     }).click(function () {
-        ipcRenderer.send("updateDirectly");
+        window.electronAPI.updateDirectly();
     });
 
     var installAfterClose = $("<a>", {
@@ -611,12 +565,12 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
         "text": i18n("message.installafterclose"),
         "click": function () {
             console.log("install after close")
-            ipcRenderer.send("updateAfterClose");
+            window.electronAPI.updateAfterClose();
             $("#updateReady").hide()
         }
     }).click(function () {
 
-        ipcRenderer.send("updateAfterClose");
+        window.electronAPI.updateAfterClose();
         $("#updateReady").hide()
     });
     var nextRemember = $("<a>", {
@@ -633,7 +587,7 @@ ipcRenderer.on("updateDownloaded", (event, info) => {
     $("#messageBox").append(message);
 });
 
-ipcRenderer.on("receivedDropboxkey", function () {
+window.electronAPI.onReceivedDropboxkey(function () {
     $("#introduction").dialog("close");
 });
 
@@ -680,13 +634,13 @@ function setHistoryEntries() {
                 removeElementFromHistory(_el)
             } else if (_el.prevObject.attr("id") === "export") {
                 exportSelected = true;
-                ipcRenderer.send('export-dialog');
+                triggerExport();
             } else if (_el.prevObject.attr("id") === "print") {
                 setContent(JSON.parse(_el.data("content")))
-                ipcRenderer.send('print');
+                window.electronAPI.print();
             } else if (_el.prevObject.attr("id") === "print-pdf") {
                 setContent(JSON.parse(_el.data("content")))
-                ipcRenderer.send('print-to-pdf');
+                window.electronAPI.printToPdf();
             } else if (_el.hasClass("ui-selected")) {
                 $("#historyPreview").dialog("close");
                 setContent(JSON.parse(_el.data("content")));
@@ -695,7 +649,7 @@ function setHistoryEntries() {
     });
     _content.append(previewContainer)
 
-    var entries = store.get("history");
+    var entries = window.storeAPI.get("history");
     $(entries).each(function (i, entry) {
         let previewEntry = $("<div>", {"id": i, "class": "historyEntry"});
 
@@ -760,14 +714,14 @@ function setHistoryEntries() {
 
 function removeElementFromHistory(_el) {
     var _index = _el.index();
-    var history = store.get("history")
+    var history = window.storeAPI.get("history")
     var _newHistory = [];
     for (var i in history) {
         if (i != _index) {
             _newHistory.push(history[i])
         }
     }
-    store.set("history", _newHistory);
+    window.storeAPI.set("history", _newHistory);
     _el.remove();
 }
 
@@ -797,7 +751,7 @@ function activateHistoryButton() {
 
 function activateExportButton() {
     $("#exportWord").click(function () {
-        ipcRenderer.send('export-dialog');
+        triggerExport();
     })
 }
 

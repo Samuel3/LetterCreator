@@ -4,6 +4,7 @@ const url = require('url');
 const osLocale = require('os-locale');
 const os = require('os');
 const fs = require('fs');
+const http = require('http');
 const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const store = require('data-store')('LetterCreator');
 const log = require('electron-log');
@@ -52,15 +53,21 @@ ipcMain.on("message", function (event, content) {
     mainWindow.webContents.send("message", content);
 });
 
-ipcMain.on("dropbox-login", function (event, url) {
-    shell.openExternal(url);
-});
-
 let mainWindow;
+let dropboxAuthServer = null;
 
 function createWindow () {
     autoUpdater.checkForUpdates();
-    mainWindow = new BrowserWindow({width: 640, height: 480, backgroundColor: "#04C800", webPreferences: {nodeIntegration: true, contextIsolation: false}});
+    mainWindow = new BrowserWindow({
+        width: 640,
+        height: 480,
+        backgroundColor: "#04C800",
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js')
+        }
+    });
     mainWindow.maximize();
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '/sites/index.html'),
@@ -72,7 +79,12 @@ function createWindow () {
     mainWindow.webContents.on('did-finish-load', function () {
         for (arg of process.argv) {
             if (fs.existsSync(arg) && arg.endsWith(".let")) {
-                mainWindow.webContents.send("file-open", arg);
+                try {
+                    var content = fs.readFileSync(arg, 'utf8');
+                    mainWindow.webContents.send("file-content", content);
+                } catch (e) {
+                    console.error('Error reading file:', e);
+                }
             }
         }
     });
@@ -133,7 +145,7 @@ app.on('activate', function () {
 });
 
 // In this file you can include the rest of your app's specific main process
-function saveDialog() {
+function saveDialog(content) {
     const options = {
         title: 'Save a letter',
         filters: [
@@ -141,17 +153,21 @@ function saveDialog() {
         ]
     };
     dialog.showSaveDialog(options, (filename) => {
-        mainWindow.send('saved-file', filename)
+        if (filename && content) {
+            fs.writeFileSync(filename, content);
+        } else if (filename) {
+            mainWindow.webContents.send('save-requested');
+        }
     })
 }
 
 // code. You can also put them in separate files and require them here.
-ipcMain.on('save-dialog', () => {
-    saveDialog();
+ipcMain.on('save-dialog', (event, content) => {
+    saveDialog(content);
 });
 
 // In this file you can include the rest of your app's specific main process
-function exportDialog() {
+function exportDialog(content) {
     const options = {
         title: 'Export a letter',
         filters: [
@@ -159,15 +175,66 @@ function exportDialog() {
         ]
     };
     dialog.showSaveDialog(options, (filename) => {
-        mainWindow.send('exported-file', filename)
-    })
+        if (filename && content) {
+            try {
+                var officegen = require('officegen');
+                var async = require('async');
+                var docx = officegen('docx');
+                var _content = JSON.parse(content);
+                var _receivers = _content.receiver.split("<br>");
+                for (var i = 0; i < 3; i++) {
+                    docx.createP();
+                }
+                var _receiverP = docx.createP();
+                _receiverP.addText(_content.sender, {underline: true, font_size: 10});
+                _receiverP.addLineBreak();
+                _receiverP.addText(_receivers[0]);
+                for (let i = 1; i < _receivers.length; i++) {
+                    _receiverP.addLineBreak();
+                    _receiverP.addText(_receivers[i]);
+                }
+                for (let i = 0; i < 3; i++) {
+                    docx.createP();
+                }
+                _receiverP = docx.createP();
+                _receiverP.addText(_content.subject, {"bold": true});
+                docx.createP();
+                docx.createP();
+                _receiverP = docx.createP();
+                _receiverP.addText(_content.content);
+                docx.createP();
+                docx.createP();
+                _receiverP = docx.createP();
+                _receiverP.addText(_content.greeting);
+                var out = fs.createWriteStream(filename);
+                out.on('error', function (err) {
+                    console.log(err);
+                });
+                async.parallel([
+                    function (done) {
+                        out.on('close', function () {
+                            console.log('Finish to create a DOCX file.');
+                            done(null);
+                        });
+                        docx.generate(out);
+                    }
+                ], function (err) {
+                    if (err) {
+                        console.log('error: ' + err);
+                    }
+                });
+            } catch (e) {
+                console.error('Export error:', e);
+            }
+        }
+    });
 }
 
-ipcMain.on('export-dialog', () => {
-    exportDialog();
+ipcMain.on('export-dialog', (event, content) => {
+    exportDialog(content);
 });
 
-ipcMain.on("export-all-dialog", () => {
+ipcMain.on("export-all-dialog", (event, history) => {
     const options = {
         title: 'Export all letters',
         filters: [
@@ -175,8 +242,16 @@ ipcMain.on("export-all-dialog", () => {
         ]
     };
     dialog.showSaveDialog(options, (filename) => {
-        settingsWindow.send('exported-filecollection', filename)
+        if (filename && history) {
+            fs.writeFileSync(filename, history);
+        }
     })
+});
+
+ipcMain.on('close-settings-window', () => {
+    if (typeof settingsWindow !== 'undefined' && settingsWindow) {
+        settingsWindow.close();
+    }
 });
 
 function loadDialog() {
@@ -185,7 +260,12 @@ function loadDialog() {
         properties: ['openFile']
     }, (files) => {
         if (files) {
-            mainWindow.send('selected-directory', files)
+            try {
+                var content = fs.readFileSync(files[0] + '');
+                mainWindow.webContents.send('file-content', content.toString());
+            } catch (e) {
+                console.error('Error reading file:', e);
+            }
         }
     })
 }
@@ -223,8 +303,47 @@ ipcMain.on('updateAfterClose', () => {
 });
 
 ipcMain.on('receivedDropboxkey', () => {
-    mainWindow.send("receivedDropboxkey")
+    mainWindow.webContents.send("receivedDropboxkey")
 })
+
+ipcMain.on('dropbox-login', (event, authUrl) => {
+    shell.openExternal(authUrl);
+    if (dropboxAuthServer) {
+        try { dropboxAuthServer.close(); } catch (e) {}
+        dropboxAuthServer = null;
+    }
+    dropboxAuthServer = http.createServer(function (req, res) {
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        if (req.url === '/') {
+            res.end('<html><body>' +
+                '<div>LetterCreator has successfully logged into dropbox. You can now close this window.</div>' +
+                '<script>' +
+                'console.log(document.URL);\n' +
+                'var xmlHttp = new XMLHttpRequest();\n' +
+                'xmlHttp.open("POST", "http://localhost:17234/accesstoken");\n' +
+                'xmlHttp.send(\'{"token":"\' + document.URL + \'\"}\');\n' +
+                'console.log(xmlHttp.responseText);\n' +
+                '</script>' +
+                '</body></html>');
+        } else {
+            let body = '';
+            req.on('data', chunk => { body += chunk.toString(); });
+            req.on('end', () => {
+                if (body !== '') {
+                    try {
+                        let token = JSON.parse(body).token;
+                        token = token.slice(token.indexOf('access_token=') + 13);
+                        token = token.slice(0, token.indexOf('&'));
+                        mainWindow.webContents.send('dropbox-auth-token', token);
+                    } catch (e) {
+                        console.error('Error parsing Dropbox token:', e);
+                    }
+                }
+                res.end('ok');
+            });
+        }
+    }).listen(17234);
+});
 
 autoUpdater.on('checking-for-update', () => {
     log.info("Checking for updates...")

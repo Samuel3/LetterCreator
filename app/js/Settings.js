@@ -1,15 +1,7 @@
-require("./i18n");
-const log = require('electron-log');
-const {remote, ipcRenderer} = require('electron');
-const dataStore = require("./Store");
-const store = new dataStore(function () {
-});
-const fs = require('fs');
-
 $(document).ready(function () {
     document.title = i18n("menu.edit.settings");
     $("#heading").html(i18n("menu.edit.settings"));
-    var settings = store.get("settings") || {};
+    var settings = window.storeAPI.get("settings") || {};
     var _langHeader = $("<p>", {"id": "langHeader", "html": i18n("message.chooselang")});
     let content = $("#content");
     content.append(_langHeader);
@@ -43,9 +35,9 @@ $(document).ready(function () {
         buttons: {
             "OK": function () {
                 $( this ).dialog( "close" )
-                log.warn("Deleting all letters.");
-                showMessage(i18n("message.historydeleted"));x
-                store.deleteHistory()
+                console.warn("Deleting all letters.");
+                showMessage(i18n("message.historydeleted"));
+                window.storeAPI.deleteHistory()
             },
             "Cancel": function () {
                 $( this ).dialog( "close" )
@@ -56,7 +48,7 @@ $(document).ready(function () {
         "id": "deleteAll",
         "html": i18n("button.deleteAll"),
         click: function () {
-            log.warn("Deleting whole history")
+            console.warn("Deleting whole history")
             $("#confirmationDialog").dialog("open")
         }
     }));
@@ -66,13 +58,13 @@ $(document).ready(function () {
         "id": "exportAll",
         "html": i18n("button.exportall"),
         click: function () {
-            ipcRenderer.send("export-all-dialog");
+            window.settingsAPI.exportAllDialog(JSON.stringify(window.storeAPI.get("history")));
             console.log("Export all")
         }
     }));
 
     content.append($("<h2>", {html: i18n("message.dropboxheading")}))
-    const useDropbox = store.useDropbox();
+    const useDropbox = window.storeAPI.useDropbox();
     content.append($("<input>", {
         "id": "useDropbox",
         "type":"checkbox",
@@ -99,16 +91,16 @@ $(document).ready(function () {
 
     $("#ok").html(i18n("button.ok")).click(function (e) {
         e.preventDefault();
-        ipcRenderer.send("message", i18n("message.stored"));
+        window.settingsAPI.message(i18n("message.stored"));
         if (settings.lang !== getSettings().lang && !(typeof settings.lang !== "undefined")) {
-            ipcRenderer.send("reload");
+            window.settingsAPI.reload();
         }
-        store.set("settings", getSettings());
-        store.storeCloudData();
-        remote.getCurrentWindow().close();
+        window.storeAPI.set("settings", getSettings());
+        window.storeAPI.storeCloudData();
+        window.settingsAPI.closeWindow();
     });
     $("#abort").html(i18n("button.abort")).click(function () {
-        remote.getCurrentWindow().close();
+        window.settingsAPI.closeWindow();
     });
 
     if (typeof settings !== "undefined") {
@@ -134,11 +126,6 @@ function setSettings(settings) {
 function showMessage(message) {
     $("#messageField").append($("<div>", {"html": message}).show().delay(5000).fadeOut());
 }
-
-ipcRenderer.on("exported-filecollection", (event, path) => {
-    log.info(`Exporting history to: ${path}`)
-    fs.writeFileSync(path, JSON.stringify(store.get("history")))
-});
 
 
 //# sourceURL=Settings.js
