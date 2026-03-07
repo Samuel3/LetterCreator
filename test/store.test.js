@@ -368,7 +368,7 @@ describe('Store', function() {
                             this.setAccessToken = function() {};
                             this.filesDownload = function() {
                                 return Promise.resolve({
-                                    fileBlob: new Blob([JSON.stringify({})], { type: 'application/json' })
+                                    fileBlob: {}
                                 });
                             };
                             this.filesUpload = function() {
