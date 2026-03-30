@@ -20,7 +20,15 @@ try {
 } catch (e) {
     locale = osLocale.sync();
 }
-locale = locale.substring(0, 2);
+if (typeof locale !== 'string' || locale.length === 0) {
+    locale = 'en';
+} else {
+    locale = locale.substring(0, 2);
+}
+const allowedLocales = ['en', 'de'];
+if (!allowedLocales.includes(locale)) {
+    locale = 'en';
+}
 const langFile = require("../i18n/" + locale + ".json");
 
 i18n = function(key) {

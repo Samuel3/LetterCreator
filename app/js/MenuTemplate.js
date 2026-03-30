@@ -68,7 +68,7 @@ template = function () {
                 {
                     label: i18n("menu.edit.settings"),
                     click: function () {
-                    settingsWindow = new BrowserWindow({width: 800, height: 600, title: "Settings", webPreferences: {nodeIntegration: true, contextIsolation: false}});
+                    settingsWindow = new BrowserWindow({width: 800, height: 600, title: "Settings", webPreferences: {nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, 'settings-preload.js')}});
                     settingsWindow.loadURL(url.format({
                         pathname: path.join(__dirname, '../sites/settings.html'),
                         protocol: 'file:',

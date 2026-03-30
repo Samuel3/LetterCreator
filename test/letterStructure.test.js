@@ -1,99 +1,21 @@
 const assert = require('assert');
+const { colorize, buildAddress } = require('../app/js/letterStructureHelpers');
 
 describe('LetterStructure Helper Functions', function() {
-    // These tests focus on testable pure functions from LetterStructure.js
-    // Note: Many functions in LetterStructure.js depend on DOM/jQuery,
-    // so we'll test the logic that can be extracted and tested
 
-    describe('getAddress logic', function() {
-        // Mock implementation based on the actual logic
-        function getAddress(tableRow) {
-            const fullAddress = [];
-            const attributes = tableRow.children || [];
-            
-            function isCellEmpty(cell) {
-                return typeof getValueOfTableCell(cell) === "undefined" || 
-                       getValueOfTableCell(cell) === "";
-            }
-            
-            function getValueOfTableCell(cell) {
-                return cell && cell.value ? cell.value : (cell && cell.text ? cell.text : "");
-            }
-
-            if (!isCellEmpty(attributes[0]) || !isCellEmpty(attributes[1]) || 
-                !isCellEmpty(attributes[2]) || !isCellEmpty(attributes[3])) {
-                let _name = getValueOfTableCell(attributes[0]) + " " + 
-                           getValueOfTableCell(attributes[1]) + " " + 
-                           getValueOfTableCell(attributes[2]) + " " + 
-                           getValueOfTableCell(attributes[3]);
-                _name = _name.replace(/  /g, " ").trim();
-                if (_name) fullAddress.push(_name);
-            }
-            if (!isCellEmpty(attributes[4])) {
-                fullAddress.push(getValueOfTableCell(attributes[4]));
-            }
-            if (!isCellEmpty(attributes[5])) {
-                fullAddress.push(getValueOfTableCell(attributes[5]));
-            }
-            if (!isCellEmpty(attributes[6])) {
-                fullAddress.push(getValueOfTableCell(attributes[6]));
-            }
-            if (!isCellEmpty(attributes[7]) || !isCellEmpty(attributes[8])) {
-                let _city = getValueOfTableCell(attributes[7]) + " " + 
-                           getValueOfTableCell(attributes[8]);
-                _city = _city.trim();
-                if (_city) fullAddress.push(_city);
-            }
-            if (!isCellEmpty(attributes[9])) {
-                fullAddress.push(getValueOfTableCell(attributes[9]));
-            }
-            if (fullAddress.length === 0) {
-                return ["Doppelklicken um Empfänger hinzuzufügen", "", "", ""];
-            }
-            return fullAddress;
-        }
-
+    describe('buildAddress', function() {
         it('should return default message for empty address', function() {
-            const emptyRow = { children: [] };
-            const result = getAddress(emptyRow);
+            const result = buildAddress([], "Doppelklicken um Empfänger hinzuzufügen");
             assert.equal(result[0], "Doppelklicken um Empfänger hinzuzufügen");
         });
 
         it('should format name correctly', function() {
-            const row = {
-                children: [
-                    { value: "Herr" },
-                    { value: "Dr." },
-                    { value: "Max" },
-                    { value: "Mustermann" },
-                    { value: "" },
-                    { value: "" },
-                    { value: "" },
-                    { value: "" },
-                    { value: "" },
-                    { value: "" }
-                ]
-            };
-            const result = getAddress(row);
+            const result = buildAddress(["Herr", "Dr.", "Max", "Mustermann", "", "", "", "", "", ""]);
             assert.equal(result[0], "Herr Dr. Max Mustermann");
         });
 
         it('should format complete address', function() {
-            const row = {
-                children: [
-                    { value: "Herr" },
-                    { value: "" },
-                    { value: "Max" },
-                    { value: "Mustermann" },
-                    { value: "Musterfirma GmbH" },
-                    { value: "IT-Abteilung" },
-                    { value: "Musterstraße 123" },
-                    { value: "12345" },
-                    { value: "Musterstadt" },
-                    { value: "Deutschland" }
-                ]
-            };
-            const result = getAddress(row);
+            const result = buildAddress(["Herr", "", "Max", "Mustermann", "Musterfirma GmbH", "IT-Abteilung", "Musterstraße 123", "12345", "Musterstadt", "Deutschland"]);
             assert.equal(result[0], "Herr Max Mustermann");
             assert.equal(result[1], "Musterfirma GmbH");
             assert.equal(result[2], "IT-Abteilung");
@@ -103,21 +25,7 @@ describe('LetterStructure Helper Functions', function() {
         });
 
         it('should handle empty name fields', function() {
-            const row = {
-                children: [
-                    { value: "" },
-                    { value: "" },
-                    { value: "" },
-                    { value: "" },
-                    { value: "Musterfirma GmbH" },
-                    { value: "" },
-                    { value: "Musterstraße 123" },
-                    { value: "12345" },
-                    { value: "Musterstadt" },
-                    { value: "" }
-                ]
-            };
-            const result = getAddress(row);
+            const result = buildAddress(["", "", "", "", "Musterfirma GmbH", "", "Musterstraße 123", "12345", "Musterstadt", ""]);
             assert.equal(result[0], "Musterfirma GmbH");
             assert.equal(result[1], "Musterstraße 123");
             assert.equal(result[2], "12345 Musterstadt");
@@ -177,17 +85,7 @@ describe('LetterStructure Helper Functions', function() {
         });
     });
 
-    describe('colorize function', function() {
-        // Mock implementation
-        function colorize(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            let color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
-            return '#' + Array(6 - color.length + 1).join('0') + color;
-        }
-
+    describe('colorize', function() {
         it('should return a valid hex color', function() {
             const color = colorize("test string");
             assert.ok(/^#[0-9a-f]{6}$/i.test(color));
@@ -206,3 +104,4 @@ describe('LetterStructure Helper Functions', function() {
         });
     });
 });
+
