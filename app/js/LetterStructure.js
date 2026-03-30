@@ -380,37 +380,12 @@ function createAddressTable(addressData) {
 }
 
 function getAddress(tableRow) {
-    var fullAddress = [];
     var attributes = tableRow.children();
-    if (!isCellEmpty(attributes[0]) || !isCellEmpty(attributes[1]) || !isCellEmpty(attributes[2]) || !isCellEmpty(attributes[3])) {
-        var _name = getValueOfTableCell(attributes[0]) + " " + getValueOfTableCell(attributes[1]) + " " + getValueOfTableCell(attributes[2]) + " " + getValueOfTableCell(attributes[3]);
-        _name = _name.replace(/  /g, " ");
-        fullAddress.push(_name);
+    var values = [];
+    for (var i = 0; i < 10; i++) {
+        values.push(getValueOfTableCell(attributes[i]));
     }
-    if (!isCellEmpty(attributes[4])) {
-        fullAddress.push(getValueOfTableCell(attributes[4]))
-    }
-    if (!isCellEmpty(attributes[5])) {
-        fullAddress.push(getValueOfTableCell(attributes[5]));
-    }
-    if (!isCellEmpty(attributes[6])) {
-        fullAddress.push(getValueOfTableCell(attributes[6]));
-    }
-    if (!isCellEmpty(attributes[7]) || !isCellEmpty(attributes[8])) {
-        var _city = getValueOfTableCell(attributes[7]) + " " + getValueOfTableCell(attributes[8]);
-        fullAddress.push(_city);
-    }
-    if (!isCellEmpty(attributes[9])) {
-        fullAddress.push(getValueOfTableCell(attributes[9]));
-    }
-    if (fullAddress.length === 0) {
-        return [i18n("message.noreceiver"), "", "", ""];
-    }
-    return fullAddress;
-}
-
-function isCellEmpty(cell) {
-    return typeof getValueOfTableCell(cell) === "undefined";
+    return buildAddress(values, i18n("message.noreceiver"));
 }
 
 function getValueOfTableCell(cell) {
@@ -753,12 +728,6 @@ function activateExportButton() {
     $("#exportWord").click(function () {
         triggerExport();
     })
-}
-
-function colorize(str) {
-    for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash)) ;
-    color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
-    return '#' + Array(6 - color.length + 1).join('0') + color;
 }
 
 //# sourceURL=LetterStructure.js

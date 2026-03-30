@@ -1,15 +1,15 @@
 $(document).ready(function () {
-    document.title = i18n("menu.help.about");
-    var version = window.appVersion;
+    document.title = window.aboutAPI.i18n("menu.help.about");
+    var version = window.aboutAPI.version;
     $("#content").html("LetterCreator was created by Samuel Mathes<br><br>Version: " + version +"<br><br>License: <a href='https://raw.githubusercontent.com/Samuel3/LetterCreator/master/LICENSE'>MIT License</a><br><br>Fork me on <a href='https://github.com/Samuel3/LetterCreator'>GitHub</a><br><br>&copy; " + new Date().getFullYear() + " by Samuel Mathes");
     $("#progressbar").progressbar({value: false});
     $("#progressbar").hide();
     $("#messageBox").hide();
 });
 
-window.aboutAPI.onProgress(function (progress) {
+window.aboutAPI.onProgress((progress) => {
     $("#progressbar").show();
-    $("#messageBox").html(i18n("message.nextreleaseavailable")).show();
+    $("#messageBox").html(window.aboutAPI.i18n("message.nextreleaseavailable")).show();
     $("#progressbar").progressbar("option",{
         value: progress
     });

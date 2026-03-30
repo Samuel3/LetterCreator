@@ -9,6 +9,7 @@ const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const store = require('data-store')('LetterCreator');
 const log = require('electron-log');
 var installUpdate = false;
+var pendingExportPath = null;
 require("./js/i18n");
 require("./js/MenuTemplate");
 
@@ -234,7 +235,7 @@ ipcMain.on('export-dialog', (event, content) => {
     exportDialog(content);
 });
 
-ipcMain.on("export-all-dialog", (event, history) => {
+ipcMain.on("export-all-dialog", () => {
     const options = {
         title: 'Export all letters',
         filters: [
@@ -242,8 +243,9 @@ ipcMain.on("export-all-dialog", (event, history) => {
         ]
     };
     dialog.showSaveDialog(options, (filename) => {
-        if (filename && history) {
-            fs.writeFileSync(filename, history);
+        if (filename) {
+            pendingExportPath = filename;
+            settingsWindow.webContents.send('ready-for-export-data');
         }
     })
 });
@@ -291,6 +293,24 @@ ipcMain.on('open-file-dialog', () => {
 ipcMain.on('close-release-notes', () => {
     if (releaseNote) {
         releaseNote.close();
+    }
+});
+
+ipcMain.on('close-settings-window', () => {
+    if (settingsWindow) {
+        settingsWindow.close();
+    }
+});
+
+ipcMain.on('export-data', (_event, data) => {
+    if (pendingExportPath) {
+        try {
+            fs.writeFileSync(pendingExportPath, data);
+            log.info(`Exported history to: ${pendingExportPath}`);
+        } catch (e) {
+            log.error(`Export failed: ${e}`);
+        }
+        pendingExportPath = null;
     }
 });
 
