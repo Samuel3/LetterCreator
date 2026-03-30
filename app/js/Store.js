@@ -21,7 +21,7 @@ var Store = function (callback) {
             for (var key in storedData) {
                 this.store.set(key, storedData[key]);
             }
-            setTimeout(function() { callback.call(self); }, 1)
+            setTimeout(function() { if (typeof callback === 'function') { callback.call(self); } }, 1)
         });
         this.box.filesDownload({path: "/config.json"}).then(function (response) {
             reader.readAsText(response.fileBlob)
@@ -30,6 +30,7 @@ var Store = function (callback) {
             if (JSON.parse(error.error).error_summary !== "path/not_found/..") {
                 ipcRenderer.send('message', i18n("message.dropboxfailed"));
             }
+            setTimeout(function() { if (typeof callback === 'function') { callback.call(self); } }, 1);
         })
     } else if (callback) {
         callback.call(this);

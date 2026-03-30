@@ -329,6 +329,84 @@ describe('Store', function() {
         });
     });
 
+    describe('Store initialization with Dropbox', function() {
+        let originalFileReader;
+
+        beforeEach(function() {
+            // Mock FileReader (browser API not available in Node.js test environment)
+            originalFileReader = global.FileReader;
+            global.FileReader = function() {
+                this.addEventListener = function(event, handler) {
+                    this._handler = handler;
+                };
+                this.readAsText = function(blob) {
+                    // Simulate async load with empty JSON object
+                    var self = this;
+                    setTimeout(function() {
+                        self._handler({ srcElement: { result: '{}' } });
+                    }, 0);
+                };
+            };
+        });
+
+        afterEach(function() {
+            global.FileReader = originalFileReader;
+        });
+
+        it('should invoke callback when filesDownload fails', function(done) {
+            // Enable Dropbox in the mock data store
+            mockDataStoreInstance.data['settings'] = { useDropbox: true, dropboxKey: 'test-key' };
+
+            // Reset and re-require Store with Dropbox enabled
+            delete require.cache[require.resolve('../app/js/Store.js')];
+            Store = require('../app/js/Store.js');
+
+            store = new Store(function() {
+                assert.ok(true, 'callback was called on filesDownload error');
+                done();
+            });
+        });
+
+        it('should invoke callback when filesDownload succeeds', function(done) {
+            // Override filesDownload to succeed
+            Module.prototype.require = function(id) {
+                if (id === 'dropbox') {
+                    return {
+                        Dropbox: function() {
+                            this.setClientId = function() {};
+                            this.setAccessToken = function() {};
+                            this.filesDownload = function() {
+                                return Promise.resolve({
+                                    fileBlob: {}
+                                });
+                            };
+                            this.filesUpload = function() {
+                                return Promise.resolve({});
+                            };
+                        }
+                    };
+                }
+                if (id === 'data-store') { return mockDataStore; }
+                if (id === 'electron') { return { ipcRenderer: { send: function() {} } }; }
+                if (id === 'electron-log') { return { silly: function() {}, info: function() {}, error: function() {}, warn: function() {} }; }
+                if (id === 'electron-store') { return function() { return { get: function() { return undefined; } }; }; }
+                if (id === 'os-locale') { return { sync: function() { return 'de'; } }; }
+                return originalRequire.apply(this, arguments);
+            };
+
+            mockDataStoreInstance.data['settings'] = { useDropbox: true, dropboxKey: 'test-key' };
+
+            delete require.cache[require.resolve('../app/js/Store.js')];
+            delete require.cache[require.resolve('../app/js/i18n.js')];
+            Store = require('../app/js/Store.js');
+
+            store = new Store(function() {
+                assert.ok(true, 'callback was called after successful filesDownload');
+                done();
+            });
+        });
+    });
+
     describe('Store.useDropbox', function() {
         beforeEach(function(done) {
             store = new Store(function() {
