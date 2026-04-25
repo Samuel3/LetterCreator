@@ -34,7 +34,7 @@ var Store = function (callback) {
     } else if (callback) {
         setTimeout(function () {
             callback.call(self);
-        }, 0);
+        }, 1);
     }
 };
 
