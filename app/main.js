@@ -8,6 +8,7 @@ const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const store = require('data-store')('LetterCreator');
 const log = require('electron-log');
 var installUpdate = false;
+var pendingExportPath = null;
 require("./js/i18n");
 require("./js/MenuTemplate");
 
@@ -60,7 +61,7 @@ let mainWindow;
 
 function createWindow () {
     autoUpdater.checkForUpdates();
-    mainWindow = new BrowserWindow({width: 640, height: 480, backgroundColor: "#04C800"});
+    mainWindow = new BrowserWindow({width: 640, height: 480, backgroundColor: "#04C800", webPreferences: {nodeIntegration: true, contextIsolation: false}});
     mainWindow.maximize();
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, '/sites/index.html'),
@@ -114,7 +115,9 @@ app.on('ready', createWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-    mainWindow.webContents.send("closed");
+    if (mainWindow && mainWindow.webContents) {
+        mainWindow.webContents.send("closed");
+    }
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== 'darwin') {
@@ -173,7 +176,10 @@ ipcMain.on("export-all-dialog", () => {
         ]
     };
     dialog.showSaveDialog(options, (filename) => {
-        settingsWindow.send('exported-filecollection', filename)
+        if (filename) {
+            pendingExportPath = filename;
+            settingsWindow.send('ready-for-export-data');
+        }
     })
 });
 
@@ -189,7 +195,7 @@ function loadDialog() {
 }
 
 function showReleaseNotes(releaseNotes) {
-    releaseNote = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800"});
+    releaseNote = new BrowserWindow({width: 800, height: 600, backgroundColor: "#04C800", webPreferences: {nodeIntegration: false, contextIsolation: true, preload: path.join(__dirname, 'js/releaseNotes-preload.js')}});
     releaseNote.loadURL(url.format({
         pathname: path.join(__dirname, '/sites/update.html'),
         protocol: 'file:',
@@ -204,6 +210,30 @@ function showReleaseNotes(releaseNotes) {
 
 ipcMain.on('open-file-dialog', () => {
     loadDialog();
+});
+
+ipcMain.on('close-release-notes', () => {
+    if (releaseNote) {
+        releaseNote.close();
+    }
+});
+
+ipcMain.on('close-settings-window', () => {
+    if (settingsWindow) {
+        settingsWindow.close();
+    }
+});
+
+ipcMain.on('export-data', (_event, data) => {
+    if (pendingExportPath) {
+        try {
+            fs.writeFileSync(pendingExportPath, data);
+            log.info(`Exported history to: ${pendingExportPath}`);
+        } catch (e) {
+            log.error(`Export failed: ${e}`);
+        }
+        pendingExportPath = null;
+    }
 });
 
 ipcMain.on('updateDirectly', () => {

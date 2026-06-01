@@ -1,0 +1,477 @@
+const assert = require('assert');
+const path = require('path');
+const Module = require('module');
+const originalRequire = Module.prototype.require;
+
+describe('Store', function() {
+    let Store;
+    let store;
+    let mockDataStore;
+
+    let mockDataStoreInstance;
+
+    beforeEach(function() {
+        // Create a mock data-store (singleton)
+        mockDataStoreInstance = {
+            data: {},
+            get: function(key) {
+                return this.data[key];
+            },
+            set: function(key, value) {
+                this.data[key] = value;
+            },
+            save: function() {}
+        };
+        mockDataStore = function(name) {
+            return mockDataStoreInstance;
+        };
+
+        // Mock modules before requiring Store
+        Module.prototype.require = function(id) {
+            if (id === 'data-store') {
+                return mockDataStore;
+            }
+            if (id === 'electron') {
+                return {
+                    ipcRenderer: {
+                        send: function() {}
+                    }
+                };
+            }
+            if (id === 'electron-log') {
+                return {
+                    silly: function() {},
+                    info: function() {},
+                    error: function() {},
+                    warn: function() {}
+                };
+            }
+            if (id === 'electron-store') {
+                return function() {
+                    return {
+                        get: function() { return undefined; }
+                    };
+                };
+            }
+            if (id === 'os-locale') {
+                return { sync: function() { return 'de'; } };
+            }
+            if (id === 'dropbox') {
+                return {
+                    Dropbox: function() {
+                        this.setClientId = function() {};
+                        this.setAccessToken = function() {};
+                        this.filesDownload = function() {
+                            return Promise.reject({
+                                error: JSON.stringify({
+                                    error_summary: "path/not_found/.."
+                                })
+                            });
+                        };
+                        this.filesUpload = function() {
+                            return Promise.resolve({});
+                        };
+                    }
+                };
+            }
+            return originalRequire.apply(this, arguments);
+        };
+
+        // Reset modules
+        delete require.cache[require.resolve('../app/js/Store.js')];
+        delete require.cache[require.resolve('../app/js/i18n.js')];
+        
+        Store = require('../app/js/Store.js');
+    });
+
+    afterEach(function() {
+        // Restore original require
+        Module.prototype.require = originalRequire;
+        delete require.cache[require.resolve('../app/js/Store.js')];
+        delete require.cache[require.resolve('../app/js/i18n.js')];
+    });
+
+    describe('Store initialization', function() {
+        it('should create a Store instance', function(done) {
+            store = new Store(function() {
+                assert.ok(this);
+                done();
+            });
+        });
+
+        it('should have get method', function(done) {
+            store = new Store(function() {
+                assert.equal(typeof this.get, 'function');
+                done();
+            });
+        });
+
+        it('should have set method', function(done) {
+            store = new Store(function() {
+                assert.equal(typeof this.set, 'function');
+                done();
+            });
+        });
+    });
+
+    describe('Store.get', function() {
+        beforeEach(function(done) {
+            store = new Store(function() {
+                done();
+            });
+        });
+
+        it('should return undefined for non-existent key', function() {
+            const result = store.get('nonExistentKey');
+            assert.equal(result, undefined);
+        });
+
+        it('should return stored value', function() {
+            store.set('testKey', 'testValue');
+            const result = store.get('testKey');
+            assert.equal(result, 'testValue');
+        });
+    });
+
+    describe('Store.set', function() {
+        beforeEach(function(done) {
+            store = new Store(function() {
+                done();
+            });
+        });
+
+        it('should store a value', function() {
+            store.set('testKey', 'testValue');
+            const result = store.get('testKey');
+            assert.equal(result, 'testValue');
+        });
+
+        it('should overwrite existing value', function() {
+            store.set('testKey', 'oldValue');
+            store.set('testKey', 'newValue');
+            const result = store.get('testKey');
+            assert.equal(result, 'newValue');
+        });
+
+        it('should store objects', function() {
+            const testObject = { key: 'value', number: 42 };
+            store.set('testObject', testObject);
+            const result = store.get('testObject');
+            assert.deepEqual(result, testObject);
+        });
+
+        it('should store arrays', function() {
+            const testArray = [1, 2, 3, 'test'];
+            store.set('testArray', testArray);
+            const result = store.get('testArray');
+            assert.deepEqual(result, testArray);
+        });
+    });
+
+    describe('Store.compareTwoHistories', function() {
+        beforeEach(function(done) {
+            store = new Store(function() {
+                done();
+            });
+        });
+
+        it('should return true for identical histories', function() {
+            const history1 = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Test',
+                content: 'Content'
+            };
+            const history2 = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Test',
+                content: 'Content'
+            };
+            const result = store.compareTwoHistories(history1, history2);
+            assert.equal(result, true);
+        });
+
+        it('should return false for different histories', function() {
+            const history1 = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Test',
+                content: 'Content'
+            };
+            const history2 = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Different',
+                content: 'Content'
+            };
+            const result = store.compareTwoHistories(history1, history2);
+            assert.equal(result, false);
+        });
+
+        it('should ignore date, time, printDate, and foldingMarks differences', function() {
+            const history1 = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Test',
+                content: 'Content',
+                date: '01.01.2020',
+                time: '10:00:00',
+                printDate: '01.01.2020',
+                foldingMarks: true
+            };
+            const history2 = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Test',
+                content: 'Content',
+                date: '02.02.2021',
+                time: '11:00:00',
+                printDate: '02.02.2021',
+                foldingMarks: false
+            };
+            const result = store.compareTwoHistories(history1, history2);
+            assert.equal(result, true);
+        });
+    });
+
+    describe('Store.storeHistory', function() {
+        beforeEach(function(done) {
+            store = new Store(function() {
+                store.set('history', []);
+                done();
+            });
+        });
+
+        it('should add new entry to history when history exists', function() {
+            const content1 = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Test 1',
+                content: 'Content 1'
+            };
+            const content2 = {
+                sender: 'Jane Doe',
+                receiver: 'John Smith',
+                subject: 'Test 2',
+                content: 'Content 2'
+            };
+
+            store.set('history', [content1]);
+            store.storeHistory(content2);
+
+            const finalHistory = store.get('history');
+            assert.equal(finalHistory.length, 2);
+            assert.equal(finalHistory[0].sender, 'Jane Doe');
+            assert.equal(finalHistory[1].sender, 'John Doe');
+        });
+
+        it('should not add duplicate entries', function() {
+            const content = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Test',
+                content: 'Content'
+            };
+
+            store.set('history', [content]);
+            store.storeHistory(content);
+
+            const finalHistory = store.get('history');
+            assert.equal(finalHistory.length, 1);
+        });
+
+        describe('when history does not exist', function() {
+            const initialContent = {
+                sender: 'John Doe',
+                receiver: 'Jane Smith',
+                subject: 'Initial Test',
+                content: 'Initial Content'
+            };
+
+            beforeEach(function() {
+                delete mockDataStoreInstance.data['history'];
+                global.getCurrentContent = function() { return initialContent; };
+            });
+
+            afterEach(function() {
+                delete global.getCurrentContent;
+            });
+
+            it('should initialize history when it does not exist', function() {
+                store.storeHistory(initialContent);
+
+                const finalHistory = store.get('history');
+                assert.equal(finalHistory.length, 1);
+                assert.equal(finalHistory[0].sender, 'John Doe');
+                assert.equal(finalHistory[0].receiver, 'Jane Smith');
+                assert.equal(finalHistory[0].subject, 'Initial Test');
+                assert.equal(finalHistory[0].content, 'Initial Content');
+            });
+        });
+    });
+
+    describe('Store.deleteHistory', function() {
+        beforeEach(function(done) {
+            store = new Store(function() {
+                done();
+            });
+        });
+
+        it('should clear history', function() {
+            store.set('history', [
+                { sender: 'John Doe', receiver: 'Jane Smith' },
+                { sender: 'Jane Doe', receiver: 'John Smith' }
+            ]);
+            store.deleteHistory();
+            const history = store.get('history');
+            assert.deepEqual(history, []);
+        });
+    });
+
+    describe('Store initialization with Dropbox', function() {
+        let originalFileReader;
+
+        beforeEach(function() {
+            // Mock FileReader (browser API not available in Node.js test environment)
+            originalFileReader = global.FileReader;
+            global.FileReader = function() {
+                this.addEventListener = function(event, handler) {
+                    this._handler = handler;
+                };
+                this.readAsText = function(blob) {
+                    // Simulate async load with empty JSON object
+                    var self = this;
+                    setTimeout(function() {
+                        self._handler({ srcElement: { result: '{}' } });
+                    }, 0);
+                };
+            };
+        });
+
+        afterEach(function() {
+            global.FileReader = originalFileReader;
+        });
+
+        it('should invoke callback when filesDownload fails', function(done) {
+            // Enable Dropbox in the mock data store
+            mockDataStoreInstance.data['settings'] = { useDropbox: true, dropboxKey: 'test-key' };
+
+            // Reset and re-require Store with Dropbox enabled
+            delete require.cache[require.resolve('../app/js/Store.js')];
+            Store = require('../app/js/Store.js');
+
+            store = new Store(function() {
+                assert.ok(true, 'callback was called on filesDownload error');
+                done();
+            });
+        });
+
+        it('should invoke callback when filesDownload succeeds', function(done) {
+            // Override filesDownload to succeed
+            Module.prototype.require = function(id) {
+                if (id === 'dropbox') {
+                    return {
+                        Dropbox: function() {
+                            this.setClientId = function() {};
+                            this.setAccessToken = function() {};
+                            this.filesDownload = function() {
+                                return Promise.resolve({
+                                    fileBlob: {}
+                                });
+                            };
+                            this.filesUpload = function() {
+                                return Promise.resolve({});
+                            };
+                        }
+                    };
+                }
+                if (id === 'data-store') { return mockDataStore; }
+                if (id === 'electron') { return { ipcRenderer: { send: function() {} } }; }
+                if (id === 'electron-log') { return { silly: function() {}, info: function() {}, error: function() {}, warn: function() {} }; }
+                if (id === 'electron-store') { return function() { return { get: function() { return undefined; } }; }; }
+                if (id === 'os-locale') { return { sync: function() { return 'de'; } }; }
+                return originalRequire.apply(this, arguments);
+            };
+
+            mockDataStoreInstance.data['settings'] = { useDropbox: true, dropboxKey: 'test-key' };
+
+            delete require.cache[require.resolve('../app/js/Store.js')];
+            delete require.cache[require.resolve('../app/js/i18n.js')];
+            Store = require('../app/js/Store.js');
+
+            store = new Store(function() {
+                assert.ok(true, 'callback was called after successful filesDownload');
+                done();
+            });
+        });
+    });
+
+    describe('Store.useDropbox', function() {
+        beforeEach(function(done) {
+            store = new Store(function() {
+                done();
+            });
+        });
+
+        it('should return false by default', function() {
+            store.set('settings', {});
+            const result = store.useDropbox();
+            assert.equal(result, false);
+        });
+
+        it('should return true when useDropbox is enabled', function() {
+            store.set('settings', { useDropbox: true });
+            const result = store.useDropbox();
+            assert.equal(result, true);
+        });
+
+        it('should return false when useDropbox is disabled', function() {
+            store.set('settings', { useDropbox: false });
+            const result = store.useDropbox();
+            assert.equal(result, false);
+        });
+    });
+
+    describe('Store.setDropboxKey', function() {
+        beforeEach(function(done) {
+            store = new Store(function() {
+                done();
+            });
+        });
+
+        it('should set dropbox key in settings', function() {
+            const testKey = 'test-dropbox-key-123';
+            store.setDropboxKey(testKey);
+            const settings = store.get('settings');
+            assert.equal(settings.dropboxKey, testKey);
+        });
+    });
+
+    describe('Store.isDropboxKeyNeeded', function() {
+        beforeEach(function(done) {
+            store = new Store(function() {
+                done();
+            });
+        });
+
+        it('should return true when dropbox is used but key is missing', function() {
+            store.set('settings', { useDropbox: true });
+            const result = store.isDropboxKeyNeeded();
+            assert.equal(result, true);
+        });
+
+        it('should return false when dropbox is not used', function() {
+            store.set('settings', { useDropbox: false });
+            const result = store.isDropboxKeyNeeded();
+            assert.equal(result, false);
+        });
+
+        it('should return false when dropbox key exists', function() {
+            store.set('settings', { useDropbox: true, dropboxKey: 'test-key' });
+            store.dropboxKey = 'test-key';
+            const result = store.isDropboxKeyNeeded();
+            assert.equal(result, false);
+        });
+    });
+});

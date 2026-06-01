@@ -10,3 +10,5 @@ class Letter {
 }
 
 //# sourceURL=Letter.js
+
+module.exports = Letter;
