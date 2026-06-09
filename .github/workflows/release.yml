@@ -17,7 +17,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
+      - run: npm run postinstall
       - run: npm run prerelease
       - name: Build and publish
         env:
