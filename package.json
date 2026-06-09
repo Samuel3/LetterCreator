@@ -1,6 +1,6 @@
 {
   "name": "LetterCreator",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "MIT",
   "description": "A simple app to create business letters",
   "author": "Samuel Mathes <samuel.mathes@gmail.com>",
@@ -8,22 +8,22 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "start": "npm install && electron ./app",
-    "pack": "build --dir",
+    "pack": "electron-builder --dir",
     "prerelease": "node build/prebuild.js",
     "test": "mocha test/**/*.test.js --timeout 5000",
     "test:unit": "mocha test/**/*.test.js --timeout 5000",
     "test:e2e": "mocha test/spec.js --timeout 300000",
     "test:all": "mocha test/**/*.test.js test/spec.js --timeout 300000",
-    "dist": "build",
-    "release": "build"
+    "dist": "electron-builder",
+    "release": "electron-builder --publish always"
   },
   "build": {
     "appId": "LetterCreator",
     "icon": "build/icon.ico",
     "publish": {
       "provider": "github",
-      "repo": "https://github.com/Samuel3/LetterCreator",
-      "owner": "Samuel3"
+      "owner": "Samuel3",
+      "repo": "LetterCreator"
     },
     "nsis": {
       "perMachine": true
