@@ -4,7 +4,10 @@
 const fs = require("fs")
 
 let version = process.env.VERSION
-console.info("Preparing release build with version " + version)
+if (version.startsWith("v")) {
+    version = version.substring(1)
+}
+console.info("Preparing release build with version " + version);
 
 var mainBuildFile = JSON.parse(fs.readFileSync("package.json"));
 var appBuildFile = JSON.parse(fs.readFileSync("app/package.json"));
