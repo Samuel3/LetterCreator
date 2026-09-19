@@ -4,9 +4,6 @@
 const fs = require("fs")
 
 let version = process.env.VERSION
-if (version.startsWith("v")) {
-    version = version.substring(1)
-}
 console.info("Preparing release build with version " + version);
 
 var mainBuildFile = JSON.parse(fs.readFileSync("package.json"));
