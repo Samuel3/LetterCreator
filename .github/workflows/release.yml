@@ -1,0 +1,29 @@
+name: Release App
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run postinstall
+      - name: Build and publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.event.release.tag_name }}
+          RELEASE_TYPE: ${{ github.event.release.prerelease && 'prerelease' || 'release' }}
+        run: npm run release
