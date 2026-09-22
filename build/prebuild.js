@@ -29,9 +29,31 @@ const appBuildFile = JSON.parse(fs.readFileSync("app/package.json", "utf8"))
 mainBuildFile.version = version
 appBuildFile.version = version
 
-mainBuildFile.build.publish = {
-  ...mainBuildFile.build.publish,
+const build = mainBuildFile.build
+const publish = {
+  ...build.publish,
   releaseType,
+}
+build.publish = publish
+
+// Platform-specific "publish": ["github"] replaces the root config and drops releaseType.
+for (const platformKey of ["win", "mac", "linux"]) {
+  const platform = build[platformKey]
+  if (!platform || platform.publish == null) {
+    continue
+  }
+  const platformPublish = platform.publish
+  if (Array.isArray(platformPublish)) {
+    platform.publish = platformPublish.map((entry) =>
+      typeof entry === "string"
+        ? { ...publish, provider: entry }
+        : { ...publish, ...entry }
+    )
+  } else if (typeof platformPublish === "string") {
+    platform.publish = { ...publish, provider: platformPublish }
+  } else {
+    platform.publish = { ...publish, ...platformPublish }
+  }
 }
 
 fs.writeFileSync("package.json", JSON.stringify(mainBuildFile, null, 2) + "\n")

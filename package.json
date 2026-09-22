@@ -29,14 +29,17 @@
       "perMachine": true
     },
     "win": {
-      "publish": [
-        "github"
-      ],
       "target": "nsis",
       "fileAssociations": {
         "ext": "let",
         "name": "LetterCreator"
       }
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "dmg": {
       "contents": [
