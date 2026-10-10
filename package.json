@@ -23,7 +23,6 @@
   "build": {
     "appId": "LetterCreator",
     "icon": "build/icon.ico",
-    "includeSubNodeModules": true,
     "publish": {
       "provider": "github",
       "owner": "Samuel3",
