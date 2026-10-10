@@ -4,7 +4,6 @@ const version = require("../package.json").version;
 require("./i18n");
 const dataStore = require("./Store");
 const { colorize, buildAddress } = require("./letterStructureHelpers");
-var officegen = require('officegen');
 var async = require('async');
 var exportSelected = false;
 
@@ -481,6 +480,7 @@ ipcRenderer.on('saved-file', (event, path) => {
 
 ipcRenderer.on('exported-file', (event, path) => {
     if (path) {
+        var officegen = require('officegen');
         var docx = officegen('docx');
         var _content;
         if (!exportSelected) {

@@ -17,6 +17,9 @@
     "dist": "electron-builder",
     "release": "electron-builder --publish always"
   },
+  "overrides": {
+    "app-builder-bin": "5.0.0-alpha.11"
+  },
   "build": {
     "appId": "LetterCreator",
     "icon": "build/icon.ico",
