@@ -1,7 +1,10 @@
 $(document).ready(function () {
     document.title = window.aboutAPI.i18n("menu.help.about");
     var version = window.aboutAPI.version;
-    $("#content").html("LetterCreator was created by Samuel Mathes<br><br>Version: " + version +"<br><br>License: <a href='https://raw.githubusercontent.com/Samuel3/LetterCreator/master/LICENSE'>MIT License</a><br><br>Fork me on <a href='https://github.com/Samuel3/LetterCreator'>GitHub</a><br><br>&copy; " + new Date().getFullYear() + " by Samuel Mathes");
+    $("h1").text(window.aboutAPI.i18n("about.title"));
+    $("#version").text(window.aboutAPI.i18n("about.version") + " " + version);
+    $("#description").text(window.aboutAPI.i18n("about.description"));
+    $("#content").html(window.aboutAPI.i18n("about.createdby") + "<br><br>License: <a href='https://raw.githubusercontent.com/Samuel3/LetterCreator/master/LICENSE'>MIT License</a><br><br>Fork me on <a href='https://github.com/Samuel3/LetterCreator'>GitHub</a><br><br>&copy; " + new Date().getFullYear() + " by Samuel Mathes");
     $("#progressbar").progressbar({value: false});
     $("#progressbar").hide();
     $("#messageBox").hide();

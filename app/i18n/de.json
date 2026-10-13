@@ -74,5 +74,9 @@
   "title.intro": "Einführung",
   "title.confirmation": "Bestätigung",
   "title.size": "Vorschaugröße",
-  "title.introduction": "Einführung"
+  "title.introduction": "Einführung",
+  "about.title": "Über LetterCreator",
+  "about.version": "Version",
+  "about.description": "LetterCreator unterstützt dich beim Schreiben von Briefen nach DIN 5008 und bringt eine Historie sowie eine Empfängerverwaltung mit.",
+  "about.createdby": "LetterCreator wurde von Samuel Mathes erstellt"
 }
